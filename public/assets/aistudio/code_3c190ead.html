@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700&amp;family=Public+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#000000","tertiary":"#000000","surface-container-highest":"#d3e4fe","tertiary-fixed-dim":"#4edea3","surface-variant":"#d3e4fe","tertiary-container":"#002113","secondary":"#0051d5","on-primary-container":"#7c839b","surface":"#f8f9ff","on-secondary":"#ffffff","on-primary":"#ffffff","secondary-fixed-dim":"#b4c5ff","surface-container-low":"#eff4ff","on-secondary-fixed-variant":"#003ea8","inverse-surface":"#213145","inverse-primary":"#bec6e0","on-error":"#ffffff","primary-container":"#131b2e","on-tertiary-container":"#009668","tertiary-fixed":"#6ffbbe","on-surface-variant":"#45464d","surface-dim":"#cbdbf5","on-primary-fixed-variant":"#3f465c","surface-container-high":"#dce9ff","error-container":"#ffdad6","secondary-fixed":"#dbe1ff","on-error-container":"#93000a","secondary-container":"#316bf3","on-tertiary-fixed":"#002113","on-background":"#0b1c30","background":"#f8f9ff","inverse-on-surface":"#eaf1ff","surface-container":"#e5eeff","primary-fixed":"#dae2fd","error":"#ba1a1a","outline-variant":"#c6c6cd","outline":"#76777d","on-tertiary-fixed-variant":"#005236","primary-fixed-dim":"#bec6e0","surface-container-lowest":"#ffffff","on-surface":"#0b1c30","on-secondary-container":"#fefcff","on-primary-fixed":"#131b2e","on-tertiary":"#ffffff","surface-tint":"#565e74","surface-bright":"#f8f9ff","on-secondary-fixed":"#00174b"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"space-2xl":"3rem","space-sm":"0.5rem","space-lg":"1.5rem","space-xs":"0.25rem","space-md":"1rem","margin":"2rem","margin-sm":"1rem","gutter-sm":"1rem","space-xl":"2rem","gutter":"1.5rem"},fontFamily:{"display-lg":["Manrope"],"headline-lg-mobile":["Manrope"],"label-sm":["Public Sans"],"headline-md":["Manrope"],"metric-stat":["Manrope"],"table-cell":["Public Sans"],"label-md":["Public Sans"],"body-md":["Public Sans"],"headline-lg":["Manrope"],"headline-sm":["Manrope"],"table-header":["Public Sans"],"body-lg":["Public Sans"],"body-sm":["Public Sans"]},fontSize:{"display-lg":["2.25rem",{"lineHeight":"2.75rem","letterSpacing":"-0.025em","fontWeight":"700"}],"headline-lg-mobile":["1.375rem",{"lineHeight":"1.75rem","letterSpacing":"-0.015em","fontWeight":"700"}],"label-sm":["0.75rem",{"lineHeight":"1rem","letterSpacing":"0.025em","fontWeight":"600"}],"headline-md":["1.25rem",{"lineHeight":"1.75rem","letterSpacing":"-0.015em","fontWeight":"600"}],"metric-stat":["1.875rem",{"lineHeight":"2.25rem","letterSpacing":"-0.02em","fontWeight":"700"}],"table-cell":["0.875rem",{"lineHeight":"1.25rem","fontWeight":"400"}],"label-md":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0.01em","fontWeight":"600"}],"body-md":["0.875rem",{"lineHeight":"1.375rem","fontWeight":"400"}],"headline-lg":["1.75rem",{"lineHeight":"2.25rem","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-sm":["1rem",{"lineHeight":"1.5rem","letterSpacing":"-0.01em","fontWeight":"600"}],"table-header":["0.75rem",{"lineHeight":"1rem","letterSpacing":"0.05em","fontWeight":"700"}],"body-lg":["1rem",{"lineHeight":"1.625rem","fontWeight":"400"}],"body-sm":["0.75rem",{"lineHeight":"1.125rem","fontWeight":"400"}]}}}}</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 w-full px-gutter flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md"><img alt="Logo Sistema de Ventas" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrCAHM1rJ-AFzH_cBAkvim3jRgz7D7gbG7BQrF_p3pza4RnHD8NGMlZ1PLGxko0_ifHbgNVb4lQ3xmhMS83uDrqxfjfDDL41_kr29G0owmhOw1hYHbYyNSAXy2PMYtJfVColdIIPWCuWhfVye5uE6ASHtJyLV1mWI1QkaIr0uJNNpiarzqQ4mTEppMdtmMpfgzvwBBa5l92tyHe39d88dN59KFRZNVQ8vXFDSIg-hY9B"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-on-surface">Sistema de Ventas &amp; Facturación</span><span class="font-label-sm text-label-sm text-on-surface-variant">Entorno Académico - PHP Nativo / MVC</span></div></div><nav class="hidden xl:flex items-center gap-space-xs" data-active-classes="bg-primary text-on-primary font-label-md rounded-lg"><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="panel-general" href="#">Panel General</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="punto-de-venta" href="#">Punto de Venta</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="control-de-caja" href="#">Control de Caja &amp; Cobros</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="catalogo-inventario" href="#">Catálogo &amp; Inventario</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="reportes-gestion" href="#">Reportes de Gestión</a></nav><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-sm bg-surface-container-low px-space-md py-space-xs rounded-xl"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="flex flex-col text-left"><div class="flex items-center gap-space-xs"><span class="font-label-md text-label-md text-on-surface">Prof. Carlos Mendoza</span><span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span></div><span class="font-label-sm text-label-sm text-on-surface-variant">Administrador · En Línea</span></div></div><a class="flex items-center gap-space-xs px-space-sm py-space-xs text-error hover:bg-error-container hover:text-on-error-container rounded-lg transition-colors font-label-md text-label-md" data-path="login" href="#"><span class="material-symbols-outlined text-[18px]">logout</span><span class="hidden sm:inline">Cerrar Sesión</span></a></div></div></header><main class="w-full pt-20 flex-1 bg-surface"><div class="flex flex-col w-full">
+<!-- Top Operational Context Strip -->
+<div class="w-full bg-surface-container-lowest px-gutter py-space-sm flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-md flex-wrap">
+<div class="flex items-center gap-space-xs bg-surface-container-high text-on-surface px-space-sm py-space-xs rounded-full">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span>
+<span class="font-label-sm text-label-sm font-semibold">Turno Operativo #089 · Activo</span>
+</div>
+<div class="flex items-center gap-space-xs bg-primary-container text-on-primary-container px-space-sm py-space-xs rounded-full">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">shield_person</span>
+<span class="font-label-sm text-label-sm">Auditoría RBAC: Administrador</span>
+</div>
+<span class="text-on-surface-variant font-body-sm text-body-sm hidden md:inline">|</span>
+<span class="text-on-surface-variant font-body-sm text-body-sm">Semestre Lectivo 2024-II · Arquitectura MVC Modular</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="px-space-md py-space-xs bg-surface-container-low hover:bg-surface-container text-on-surface rounded-lg font-label-md text-label-md flex items-center gap-space-xs transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">print</span>
+<span>Imprimir Libro de Ventas (PDF)</span>
+</button>
+<button class="px-space-md py-space-xs bg-primary hover:bg-slate-900 text-on-primary rounded-lg font-label-md text-label-md flex items-center gap-space-xs transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[16px] text-tertiary-fixed">file_download</span>
+<span>Exportar CSV / SQL Auditoría</span>
+</button>
+</div>
+</div>
+<div class="w-full px-gutter py-space-lg flex flex-col gap-space-lg">
+<!-- Header Title Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-secondary font-label-sm text-label-sm uppercase tracking-wider">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+<span>Panel de Supervisión Transaccional &amp; Control Contable</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-on-surface font-bold tracking-tight">Centro de Reportes y Auditoría del Administrador</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-4xl">
+          Módulo de Gestión de Ventas, Trazabilidad Transaccional e Historial de Anulaciones con Restitución de Stock y Caja (RF-14.4 &amp; RF-13).
+        </p>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm bg-surface-container-low px-space-md py-space-sm rounded-lg self-start md:self-auto">
+<span class="material-symbols-outlined text-[18px] text-secondary">database</span>
+<span>InnoDB Isolation: READ COMMITTED</span>
+</div>
+</div>
+<!-- Navigation Tab Strip -->
+<div class="w-full bg-surface-container-low p-space-xs rounded-xl flex items-center gap-space-xs overflow-x-auto shadow-sm">
+<button class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors whitespace-nowrap flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+<span>1. Ventas Diarias (Por Estado)</span>
+</button>
+<button class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors whitespace-nowrap flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px]">account_balance_wallet</span>
+<span>2. Arqueo y Caja por Turno</span>
+</button>
+<button class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors whitespace-nowrap flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px]">inventory_2</span>
+<span>3. Stock Bajo / Crítico</span>
+<span class="px-space-xs py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm">1</span>
+</button>
+<button class="px-space-md py-space-sm rounded-lg font-label-md text-label-md bg-primary text-on-primary shadow-sm whitespace-nowrap flex items-center gap-space-xs font-semibold">
+<span class="material-symbols-outlined text-[16px] text-tertiary-fixed-dim">history_edu</span>
+<span>4. Historial General de Ventas</span>
+<span class="ml-space-xs px-space-xs py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">RF-14.4 / RF-13</span>
+</button>
+</div>
+<!-- Pedagogical Banner: RF-13 & TRD Protocol -->
+<div class="w-full bg-surface-container-lowest rounded-xl p-space-lg shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<div class="lg:col-span-8 flex flex-col gap-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]">policy</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Fundamento Operativo &amp; Regla de Anulación (RF-13 &amp; TRD)</h2>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Mecanismo Atómico de Reversión en Motor PDO MySQL InnoDB</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md font-body-sm text-body-sm">
+<div class="p-space-md bg-surface-container-low rounded-lg flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-on-surface font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] text-tertiary-container">sync_saved_locally</span>
+<span>Si la Venta estaba PAGADA:</span>
+</div>
+<p class="text-on-surface-variant">
+              Exige confirmación de devolución del dinero en efectivo o transferencia. Restituye automáticamente las unidades al catálogo <code class="bg-surface-container px-1 py-0.5 rounded text-on-surface font-mono">productos</code> mediante movimiento <code class="bg-surface-container px-1 py-0.5 rounded text-on-surface font-mono">REPOSICION_ANULACION</code>, asienta egreso contable en <code class="bg-surface-container px-1 py-0.5 rounded text-on-surface font-mono">movimientos_caja (DEVOLUCION_ANULACION)</code> e invalida el comprobante fiscal.
+            </p>
+</div>
+<div class="p-space-md bg-surface-container-low rounded-lg flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-on-surface font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] text-secondary">cancel_presentation</span>
+<span>Si la Venta estaba PENDIENTE:</span>
+</div>
+<p class="text-on-surface-variant">
+              Transiciona de inmediato a <span class="font-semibold text-error">ANULADA</span> sin generar desajustes de stock ni movimientos en caja. Requiere motivo de anulación obligatorio (mínimo 10 caracteres) para garantizar trazabilidad e impedir órdenes huérfanas en el sistema.
+            </p>
+</div>
+</div>
+</div>
+<!-- Summary KPI Box Right -->
+<div class="lg:col-span-4 bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between gap-space-md">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase font-bold tracking-wide">Resumen del Libro Diario</span>
+<span class="px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">Hoy · 14 Nov</span>
+</div>
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Total Ventas Registradas</span>
+<div class="flex items-baseline justify-between">
+<span class="font-display-lg text-display-lg text-on-surface">$1,965,000 <span class="text-headline-sm font-normal text-on-surface-variant">COP</span></span>
+<span class="font-label-md text-label-md text-on-surface-variant font-bold">16 Transacciones</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="flex items-center gap-1.5 text-on-surface">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span> Pagadas (13)
+            </span>
+<span class="font-semibold text-on-surface">$1,420,000 COP · 81.3%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-tertiary-fixed-dim h-full w-[81.3%]"></div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-space-sm pt-space-xs">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span> Pendientes (2)
+            </span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">$455,000 COP</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-error"></span> Anuladas (1)
+            </span>
+<span class="font-label-md text-label-md text-error font-semibold">$90,000 (6.2%)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Advanced Filter Bar (RF-14.4) -->
+<div class="w-full bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-md">
+<div class="flex flex-wrap items-end gap-space-md">
+<!-- Date From -->
+<div class="flex flex-col gap-1 min-w-[150px] flex-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant font-semibold">Fecha Desde</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-2.5 text-on-surface-variant text-[16px]">calendar_today</span>
+<input class="w-full pl-8 pr-3 py-2 bg-surface-container-low text-on-surface rounded-lg font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-lowest" type="text" value="14/11/2024"/>
+</div>
+</div>
+<!-- Date To -->
+<div class="flex flex-col gap-1 min-w-[150px] flex-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant font-semibold">Fecha Hasta</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-2.5 text-on-surface-variant text-[16px]">event_repeat</span>
+<input class="w-full pl-8 pr-3 py-2 bg-surface-container-low text-on-surface rounded-lg font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-lowest" type="text" value="14/11/2024 (Hoy)"/>
+</div>
+</div>
+<!-- Status Filter -->
+<div class="flex flex-col gap-1 min-w-[160px] flex-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant font-semibold">Estado de Transacción</label>
+<select class="w-full px-3 py-2 bg-surface-container-low text-on-surface rounded-lg font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-lowest">
+<option>Todos los Estados</option>
+<option>PAGADA</option>
+<option>PENDIENTE</option>
+<option>ANULADA</option>
+</select>
+</div>
+<!-- Vendor Filter -->
+<div class="flex flex-col gap-1 min-w-[180px] flex-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant font-semibold">Vendedor / Responsable</label>
+<select class="w-full px-3 py-2 bg-surface-container-low text-on-surface rounded-lg font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-lowest">
+<option>Todos los Vendedores</option>
+<option>Laura Gómez (Vendedor)</option>
+<option>Carlos Mendoza (Admin Contingencia)</option>
+<option>Andrés Ruiz (Cajero)</option>
+</select>
+</div>
+<!-- Text Search -->
+<div class="flex flex-col gap-1 min-w-[260px] flex-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant font-semibold">Búsqueda Rápida</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-2.5 text-on-surface-variant text-[16px]">search</span>
+<input class="w-full pl-8 pr-3 py-2 bg-surface-container-low text-on-surface rounded-lg font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-lowest" placeholder="Buscar por ID Venta, Comprobante o Cédula..." type="text"/>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex items-center gap-space-xs">
+<button class="px-space-md py-2 bg-primary hover:bg-slate-900 text-on-primary rounded-lg font-label-md text-label-md flex items-center gap-1 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[16px]">filter_alt</span>
+<span>Filtrar</span>
+</button>
+<button class="px-space-sm py-2 bg-surface-container-low hover:bg-surface-container text-on-surface-variant rounded-lg font-label-md text-label-md transition-colors" title="Limpiar Filtros">
+<span class="material-symbols-outlined text-[18px]">restart_alt</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Main Data Table: Historial General de Ventas (InnoDB TRD) -->
+<div class="w-full bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+<div class="p-space-md bg-surface-container-low flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm text-on-surface">Registro Auditado de Ventas (12 Tablas InnoDB TRD)</span>
+<span class="px-space-xs py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">Mostrando 5 de 16 registros</span>
+</div>
+<div class="flex items-center gap-space-md font-label-sm text-label-sm text-on-surface-variant">
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span>Pagada: 13</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+<span>Pendiente: 2</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span>Anulada: 1</span>
+</div>
+</div>
+</div>
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left font-body-sm text-body-sm">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant uppercase font-table-header text-table-header">
+<th class="py-space-sm px-space-md">ID Venta &amp; Fecha</th>
+<th class="py-space-sm px-space-md">Comprobante</th>
+<th class="py-space-sm px-space-md">Cliente / Cédula</th>
+<th class="py-space-sm px-space-md">Vendedor / Cajero</th>
+<th class="py-space-sm px-space-md">Detalle Productos</th>
+<th class="py-space-sm px-space-md">Método Pago</th>
+<th class="py-space-sm px-space-md text-right">Total (COP)</th>
+<th class="py-space-sm px-space-md text-center">Estado / Trazabilidad</th>
+<th class="py-space-sm px-space-md text-right">Acciones</th>
+</tr>
+</thead>
+<tbody class="divide-y-0 text-on-surface">
+<!-- Row 1: Pagada -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-space-md px-space-md whitespace-nowrap">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">#VTA-1042</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">14 Nov 2024 · 11:15 AM</span>
+</div>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap">
+<span class="font-mono font-semibold text-secondary bg-secondary-fixed/50 px-2 py-0.5 rounded text-xs">COMP-00001042</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Juan Morales</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">CC 1.094.882.110</span>
+</div>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-on-surface">Laura Gómez <span class="text-on-surface-variant text-xs">(Venta)</span></span>
+<span class="text-on-surface-variant text-xs">Andrés Ruiz (Cajero)</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="text-on-surface truncate max-w-xs block" title="1x Memoria RAM Kingston 16GB, 1x Mouse M170">
+                  1x RAM Kingston 16GB, 1x Mouse M170
+                </span>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center gap-1 w-fit">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">payments</span>
+                  Efectivo
+                </span>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap text-right">
+<span class="font-label-md text-label-md font-bold text-on-surface">$295,000</span>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap text-center">
+<div class="inline-flex flex-col items-center gap-0.5">
+<span class="px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-bold bg-emerald-100 text-emerald-800">
+                    PAGADA
+                  </span>
+<span class="text-[10px] text-on-surface-variant font-mono flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px] text-emerald-600">check_circle</span>
+                    Commit #TX-9840
+                  </span>
+</div>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="p-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-secondary transition-colors" title="Ver Comprobante">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+<button class="p-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface transition-colors" title="Imprimir Ticket">
+<span class="material-symbols-outlined text-[18px]">print</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: ANULADA (Destacado Didáctico RF-13 & Restitución) -->
+<tr class="bg-red-50/50 hover:bg-red-50/80 transition-colors">
+<td class="py-space-md px-space-md whitespace-nowrap align-top">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">#VTA-1038</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">14 Nov 2024 · 09:40 AM</span>
+</div>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap align-top">
+<div class="flex flex-col gap-1 items-start">
+<span class="font-mono text-xs line-through text-on-surface-variant">COMP-00001038</span>
+<span class="px-1.5 py-0.5 rounded bg-error-container text-on-error-container text-[10px] font-bold font-mono">ANULADO</span>
+</div>
+</td>
+<td class="py-space-md px-space-md align-top">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Valentina Rincón</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">CC 1.020.455.901</span>
+</div>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap align-top">
+<div class="flex flex-col">
+<span class="text-on-surface">Laura Gómez</span>
+<span class="text-error text-xs font-semibold">Revertido por Admin</span>
+</div>
+</td>
+<td class="py-space-md px-space-md align-top">
+<span class="text-on-surface font-medium block">2x Mouse Logitech G203</span>
+<span class="text-xs text-error font-semibold flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[13px]">replay</span>
+                  +2 Unidades Reingresadas
+                </span>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap align-top">
+<span class="px-2 py-0.5 rounded bg-error-container text-on-error-container font-label-sm text-label-sm flex items-center gap-1 w-fit">
+<span class="material-symbols-outlined text-[14px]">price_change</span>
+                  Reembolsado
+                </span>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap text-right align-top">
+<div class="flex flex-col items-end">
+<span class="font-label-md text-label-md font-bold text-on-surface line-through">$90,000</span>
+<span class="text-[11px] text-error font-semibold">-$90,000 COP</span>
+</div>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap text-center align-top">
+<div class="inline-flex flex-col items-center gap-0.5">
+<span class="px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-bold bg-red-100 text-red-800">
+                    ANULADA (CON REPOSICIÓN)
+                  </span>
+<span class="text-[10px] text-error font-mono flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px]">assignment_return</span>
+                    RF-13 Ejecutado
+                  </span>
+</div>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap text-right align-top">
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container text-on-surface font-label-sm text-label-sm flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[15px] text-error">description</span>
+<span>Acta Anulación</span>
+</button>
+</td>
+</tr>
+<!-- Desglose de Auditoría para Fila 2 (RF-13 TRD trace) -->
+<tr class="bg-red-50/70">
+<td class="px-space-md py-space-xs text-xs text-on-surface" colspan="9">
+<div class="p-space-sm bg-surface-container-lowest/80 rounded-lg flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-xs text-on-surface">
+<span class="material-symbols-outlined text-[16px] text-error">info</span>
+<span class="font-semibold">Causal de Reversión Auditada:</span>
+<span class="italic text-on-surface-variant">"Devolución solicitada por cliente por incompatibilidad de color. Reembolso en efectivo verificado en arqueo."</span>
+</div>
+<div class="flex items-center gap-space-md font-mono text-[11px] text-on-surface-variant">
+<span>Egreso Caja: #EGR-0041</span>
+<span>Kardex: +2 G203 (REPOSICION_ANULACION)</span>
+<span class="font-bold text-on-surface">Resp: Prof. Carlos Mendoza</span>
+</div>
+</div>
+</td>
+</tr>
+<!-- Row 3: PENDIENTE -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-space-md px-space-md whitespace-nowrap">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">#VTA-1043</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">14 Nov 2024 · 11:22 AM</span>
+</div>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap">
+<span class="font-label-sm text-label-sm text-on-surface-variant italic bg-surface-container-high px-2 py-0.5 rounded">En Espera de Caja</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Pedro Duarte</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">CC 79.432.119</span>
+</div>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-on-surface">Laura Gómez</span>
+<span class="text-on-surface-variant text-xs">Caja Pendiente</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="text-on-surface">1x Teclado Mecánico Kumara K552</span>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap">
+<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-label-sm text-label-sm flex items-center gap-1 w-fit">
+<span class="material-symbols-outlined text-[14px]">pending_actions</span>
+                  Por Cobrar
+                </span>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap text-right">
+<span class="font-label-md text-label-md font-bold text-on-surface">$280,000</span>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap text-center">
+<div class="inline-flex flex-col items-center gap-0.5">
+<span class="px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-bold bg-amber-100 text-amber-800">
+                    PENDIENTE
+                  </span>
+<span class="text-[10px] text-amber-700 font-mono">Esperando cobro</span>
+</div>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-space-xs py-1 rounded bg-secondary text-on-secondary font-label-sm text-label-sm flex items-center gap-1 shadow-sm hover:opacity-95">
+<span class="material-symbols-outlined text-[14px]">point_of_sale</span>
+                    Cobrar
+                  </button>
+<button class="px-space-xs py-1 rounded bg-error-container text-on-error-container font-label-sm text-label-sm flex items-center gap-1 hover:bg-error hover:text-on-error transition-colors" title="Anular sin restituir caja/stock">
+<span class="material-symbols-outlined text-[14px]">block</span>
+                    Anular
+                  </button>
+</div>
+</td>
+</tr>
+<!-- Row 4: PAGADA -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-space-md px-space-md whitespace-nowrap">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">#VTA-1041</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">14 Nov 2024 · 10:48 AM</span>
+</div>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap">
+<span class="font-mono font-semibold text-secondary bg-secondary-fixed/50 px-2 py-0.5 rounded text-xs">COMP-00001041</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Sofía Castro</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">CC 52.883.904</span>
+</div>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-on-surface">Laura Gómez</span>
+<span class="text-on-surface-variant text-xs">Andrés Ruiz (Cajero)</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="text-on-surface">1x Disco SSD NVMe 1TB Kingston</span>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center gap-1 w-fit">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">payments</span>
+                  Efectivo
+                </span>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap text-right">
+<span class="font-label-md text-label-md font-bold text-on-surface">$460,000</span>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap text-center">
+<span class="px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-bold bg-emerald-100 text-emerald-800">
+                  PAGADA
+                </span>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="p-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-secondary transition-colors" title="Ver Comprobante">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+<button class="p-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface transition-colors" title="Imprimir Ticket">
+<span class="material-symbols-outlined text-[18px]">print</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 5: PAGADA (Transferencia) -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-space-md px-space-md whitespace-nowrap">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">#VTA-1040</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">14 Nov 2024 · 09:50 AM</span>
+</div>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap">
+<span class="font-mono font-semibold text-secondary bg-secondary-fixed/50 px-2 py-0.5 rounded text-xs">COMP-00001040</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Sofía Castro</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">CC 52.883.904</span>
+</div>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-on-surface">Carlos Mendoza <span class="text-xs text-secondary font-semibold">(Admin)</span></span>
+<span class="text-on-surface-variant text-xs">Caja Principal</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="text-on-surface">1x Monitor Gamer Samsung 24" IPS</span>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap">
+<span class="px-2 py-0.5 rounded bg-blue-100 text-blue-900 font-label-sm text-label-sm flex items-center gap-1 w-fit">
+<span class="material-symbols-outlined text-[14px]">account_balance</span>
+                  Bancolombia
+                </span>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap text-right">
+<span class="font-label-md text-label-md font-bold text-on-surface">$480,000</span>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap text-center">
+<span class="px-2.5 py-0.5 rounded-full font-label-sm text-label-sm font-bold bg-emerald-100 text-emerald-800">
+                  PAGADA
+                </span>
+</td>
+<td class="py-space-md px-space-md whitespace-nowrap text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="p-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-secondary transition-colors" title="Ver Comprobante">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+<button class="p-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface transition-colors" title="Imprimir Ticket">
+<span class="material-symbols-outlined text-[18px]">print</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination & Table Metadata Footer -->
+<div class="p-space-md bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-space-sm font-label-sm text-label-sm text-on-surface-variant">
+<div class="flex items-center gap-space-xs">
+<span>Filas por página:</span>
+<select class="bg-surface-container-lowest px-2 py-1 rounded text-on-surface font-semibold focus:outline-none">
+<option>10</option>
+<option>25</option>
+<option>50</option>
+</select>
+<span class="ml-2">1 - 5 de 16 transacciones auditadas</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="px-2.5 py-1 rounded bg-surface-container-lowest text-on-surface-variant opacity-60 cursor-not-allowed">Anterior</button>
+<button class="px-2.5 py-1 rounded bg-primary text-on-primary font-bold">1</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-lowest text-on-surface hover:bg-surface-container">2</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-lowest text-on-surface hover:bg-surface-container">Siguiente</button>
+</div>
+</div>
+</div>
+<!-- Bottom Audit & Procedural Cards -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Left Card: Metrics & Integrity -->
+<div class="lg:col-span-6 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[20px]">fact_check</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Métricas de Calidad Transaccional e Integridad</h3>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-emerald-100 text-emerald-800 font-label-sm text-label-sm font-bold">100% Coherencia ACID</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-md">
+<div class="p-space-md bg-surface-container-low rounded-xl flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold">Tasa de Anulación</span>
+<span class="font-metric-stat text-metric-stat text-on-surface">6.2%</span>
+<span class="font-body-sm text-body-sm text-emerald-700 flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">check</span>
+              Umbral Seguro (&lt; 8.0%)
+            </span>
+</div>
+<div class="p-space-md bg-surface-container-low rounded-xl flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold">Comprobante Único</span>
+<span class="font-metric-stat text-metric-stat text-secondary">100%</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">KPI PRD 1.4.5 Cumplido</span>
+</div>
+<div class="p-space-md bg-surface-container-low rounded-xl flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold">Descuadre Kardex / Caja</span>
+<span class="font-metric-stat text-metric-stat text-emerald-600">0.0%</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Cero discrepancias</span>
+</div>
+</div>
+<div class="p-space-sm bg-surface-container-low rounded-lg text-body-sm font-body-sm text-on-surface-variant flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-secondary">verified</span>
+<span>Toda reversión bloquea los registros vinculados en <code class="text-on-surface font-mono">ventas</code>, <code class="text-on-surface font-mono">detalle_ventas</code> y <code class="text-on-surface font-mono">comprobantes</code> para prevenir condiciones de carrera.</span>
+</div>
+</div>
+<!-- Right Card: RF-13 Protocol Execution & Log Link -->
+<div class="lg:col-span-6 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between gap-space-md">
+<div class="flex items-center justify-between flex-wrap gap-2">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-error text-[20px]">security_update_warning</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Protocolo de Anulación Controlada (RF-13)</h3>
+</div>
+<button class="px-space-md py-1.5 bg-error hover:bg-red-700 text-on-error rounded-lg font-label-md text-label-md flex items-center gap-1 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[16px]">add_circle</span>
+<span>+ Anular Venta por Contingencia (RF-13)</span>
+</button>
+</div>
+<!-- Sequential Stepper of Anulación -->
+<div class="grid grid-cols-5 gap-1 text-center font-label-sm text-label-sm">
+<div class="p-2 bg-surface-container-low rounded flex flex-col items-center gap-1">
+<span class="w-5 h-5 rounded-full bg-primary text-on-primary text-xs flex items-center justify-center font-bold">1</span>
+<span class="text-[11px] text-on-surface font-semibold leading-tight">Motivo ≥ 10 chars</span>
+</div>
+<div class="p-2 bg-surface-container-low rounded flex flex-col items-center gap-1">
+<span class="w-5 h-5 rounded-full bg-primary text-on-primary text-xs flex items-center justify-center font-bold">2</span>
+<span class="text-[11px] text-on-surface font-semibold leading-tight">Verifica Reembolso</span>
+</div>
+<div class="p-2 bg-surface-container-low rounded flex flex-col items-center gap-1">
+<span class="w-5 h-5 rounded-full bg-primary text-on-primary text-xs flex items-center justify-center font-bold">3</span>
+<span class="text-[11px] text-on-surface font-semibold leading-tight">Reposición Stock</span>
+</div>
+<div class="p-2 bg-surface-container-low rounded flex flex-col items-center gap-1">
+<span class="w-5 h-5 rounded-full bg-primary text-on-primary text-xs flex items-center justify-center font-bold">4</span>
+<span class="text-[11px] text-on-surface font-semibold leading-tight">Egreso en Caja</span>
+</div>
+<div class="p-2 bg-surface-container-low rounded flex flex-col items-center gap-1">
+<span class="w-5 h-5 rounded-full bg-error text-on-error text-xs flex items-center justify-center font-bold">5</span>
+<span class="text-[11px] text-error font-semibold leading-tight">Invalida Comprobante</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm pt-space-xs">
+<a class="text-secondary hover:underline font-label-md text-label-md flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[16px]">terminal</span>
+<span>Ver Log SQL de Reversiones (<code class="font-mono text-xs">error.log</code> / <code class="font-mono text-xs">app.log</code>)</span>
+</a>
+<span class="text-on-surface-variant font-label-sm text-label-sm">Solo perfil Administrador</span>
+</div>
+</div>
+</div>
+<!-- Pedagogical System State Footer Banner -->
+<div class="w-full bg-surface-container-low rounded-xl px-space-md py-space-sm flex flex-col md:flex-row items-center justify-between gap-space-sm font-label-sm text-label-sm text-on-surface-variant">
+<div class="flex items-center gap-space-md flex-wrap">
+<span class="flex items-center gap-1 text-on-surface">
+<span class="material-symbols-outlined text-[16px] text-tertiary-fixed-dim">memory</span>
+<strong>Motor:</strong> PDO MySQL InnoDB (Transacciones ACID habilitadas)
+        </span>
+<span class="hidden md:inline">·</span>
+<span class="flex items-center gap-1 text-on-surface">
+<span class="material-symbols-outlined text-[16px] text-secondary">saved_search</span>
+<strong>Vistas SQL Indexadas:</strong> <code class="bg-surface-container px-1 py-0.5 rounded text-xs">idx_ventas_fecha_estado</code>
+</span>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">school</span>
+<span>Entorno Pedagógico Universitario · Módulo Facturación &amp; Auditoría</span>
+</div>
+</div>
+</div>
+</div></main><footer class="w-full bg-surface-container-low py-space-md"><div class="w-full px-gutter flex flex-col md:flex-row items-center justify-between gap-space-sm font-label-sm text-label-sm text-on-surface-variant"><div>Proyecto Formativo Académico · Semestre Lectivo 2024-II · Arquitectura MVC Modular</div><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[16px] text-tertiary-fixed-dim">database</span><span>Estado BD: Conectado (PDO InnoDB)</span></div><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[16px] text-on-surface-variant">timer</span><span>Sesión: 30 min activos</span></div></div></div></footer></body></html>

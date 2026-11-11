@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700&amp;family=Public+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary":"#000000","tertiary":"#000000","surface-container-highest":"#d3e4fe","tertiary-fixed-dim":"#4edea3","surface-variant":"#d3e4fe","tertiary-container":"#002113","secondary":"#0051d5","on-primary-container":"#7c839b","surface":"#f8f9ff","on-secondary":"#ffffff","on-primary":"#ffffff","secondary-fixed-dim":"#b4c5ff","surface-container-low":"#eff4ff","on-secondary-fixed-variant":"#003ea8","inverse-surface":"#213145","inverse-primary":"#bec6e0","on-error":"#ffffff","primary-container":"#131b2e","on-tertiary-container":"#009668","tertiary-fixed":"#6ffbbe","on-surface-variant":"#45464d","surface-dim":"#cbdbf5","on-primary-fixed-variant":"#3f465c","surface-container-high":"#dce9ff","error-container":"#ffdad6","secondary-fixed":"#dbe1ff","on-error-container":"#93000a","secondary-container":"#316bf3","on-tertiary-fixed":"#002113","on-background":"#0b1c30","background":"#f8f9ff","inverse-on-surface":"#eaf1ff","surface-container":"#e5eeff","primary-fixed":"#dae2fd","error":"#ba1a1a","outline-variant":"#c6c6cd","outline":"#76777d","on-tertiary-fixed-variant":"#005236","primary-fixed-dim":"#bec6e0","surface-container-lowest":"#ffffff","on-surface":"#0b1c30","on-secondary-container":"#fefcff","on-primary-fixed":"#131b2e","on-tertiary":"#ffffff","surface-tint":"#565e74","surface-bright":"#f8f9ff","on-secondary-fixed":"#00174b"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"space-2xl":"3rem","space-sm":"0.5rem","space-lg":"1.5rem","space-xs":"0.25rem","space-md":"1rem","margin":"2rem","margin-sm":"1rem","gutter-sm":"1rem","space-xl":"2rem","gutter":"1.5rem"},fontFamily:{"display-lg":["Manrope"],"headline-lg-mobile":["Manrope"],"label-sm":["Public Sans"],"headline-md":["Manrope"],"metric-stat":["Manrope"],"table-cell":["Public Sans"],"label-md":["Public Sans"],"body-md":["Public Sans"],"headline-lg":["Manrope"],"headline-sm":["Manrope"],"table-header":["Public Sans"],"body-lg":["Public Sans"],"body-sm":["Public Sans"]},fontSize:{"display-lg":["2.25rem",{"lineHeight":"2.75rem","letterSpacing":"-0.025em","fontWeight":"700"}],"headline-lg-mobile":["1.375rem",{"lineHeight":"1.75rem","letterSpacing":"-0.015em","fontWeight":"700"}],"label-sm":["0.75rem",{"lineHeight":"1rem","letterSpacing":"0.025em","fontWeight":"600"}],"headline-md":["1.25rem",{"lineHeight":"1.75rem","letterSpacing":"-0.015em","fontWeight":"600"}],"metric-stat":["1.875rem",{"lineHeight":"2.25rem","letterSpacing":"-0.02em","fontWeight":"700"}],"table-cell":["0.875rem",{"lineHeight":"1.25rem","fontWeight":"400"}],"label-md":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0.01em","fontWeight":"600"}],"body-md":["0.875rem",{"lineHeight":"1.375rem","fontWeight":"400"}],"headline-lg":["1.75rem",{"lineHeight":"2.25rem","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-sm":["1rem",{"lineHeight":"1.5rem","letterSpacing":"-0.01em","fontWeight":"600"}],"table-header":["0.75rem",{"lineHeight":"1rem","letterSpacing":"0.05em","fontWeight":"700"}],"body-lg":["1rem",{"lineHeight":"1.625rem","fontWeight":"400"}],"body-sm":["0.75rem",{"lineHeight":"1.125rem","fontWeight":"400"}]}}}}</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 w-full px-gutter flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md"><img alt="Logo Sistema de Ventas" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrCAHM1rJ-AFzH_cBAkvim3jRgz7D7gbG7BQrF_p3pza4RnHD8NGMlZ1PLGxko0_ifHbgNVb4lQ3xmhMS83uDrqxfjfDDL41_kr29G0owmhOw1hYHbYyNSAXy2PMYtJfVColdIIPWCuWhfVye5uE6ASHtJyLV1mWI1QkaIr0uJNNpiarzqQ4mTEppMdtmMpfgzvwBBa5l92tyHe39d88dN59KFRZNVQ8vXFDSIg-hY9B"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-on-surface">Sistema de Ventas &amp; Facturación</span><span class="font-label-sm text-label-sm text-on-surface-variant">Entorno Académico - PHP Nativo / MVC</span></div></div><nav class="hidden xl:flex items-center gap-space-xs" data-active-classes="bg-primary text-on-primary font-label-md rounded-lg"><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="panel-general" href="#">Panel General</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="punto-de-venta" href="#">Punto de Venta</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="control-de-caja" href="#">Control de Caja &amp; Cobros</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="catalogo-inventario" href="#">Catálogo &amp; Inventario</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="reportes-gestion" href="#">Reportes de Gestión</a></nav><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-sm bg-surface-container-low px-space-md py-space-xs rounded-xl"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="flex flex-col text-left"><div class="flex items-center gap-space-xs"><span class="font-label-md text-label-md text-on-surface">Prof. Carlos Mendoza</span><span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span></div><span class="font-label-sm text-label-sm text-on-surface-variant">Administrador · En Línea</span></div></div><a class="flex items-center gap-space-xs px-space-sm py-space-xs text-error hover:bg-error-container hover:text-on-error-container rounded-lg transition-colors font-label-md text-label-md" data-path="login" href="#"><span class="material-symbols-outlined text-[18px]">logout</span><span class="hidden sm:inline">Cerrar Sesión</span></a></div></div></header><main class="w-full pt-20 flex-1 bg-surface"><div class="flex flex-col w-full">
+<!-- Print stylesheet styles encapsulated in component -->
+<style>
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printable-voucher, #printable-voucher * {
+        visibility: visible;
+      }
+      #printable-voucher {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        border-radius: 0;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+<!-- Top Action & Navigation Bar (No Print) -->
+<section class="no-print w-full px-gutter py-space-lg flex flex-col gap-space-md">
+<!-- Breadcrumb & Status Pill -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm">
+<nav aria-label="Miga de Pan" class="flex items-center gap-space-xs font-label-sm text-label-sm text-on-surface-variant">
+<a class="hover:text-secondary flex items-center gap-1 transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px]">folder_managed</span>
+          Reportes de Gestión
+        </a>
+<span>/</span>
+<a class="hover:text-secondary transition-colors" href="#">Historial General de Ventas</a>
+<span>/</span>
+<span class="text-on-surface font-semibold">Comprobante COMP-00001042</span>
+</nav>
+<!-- Status Pill RF-13 -->
+<div class="inline-flex items-center gap-space-xs px-space-md py-space-xs bg-error-container text-on-error-container rounded-full font-label-sm text-label-sm font-bold shadow-sm">
+<span class="material-symbols-outlined text-[18px]">cancel</span>
+<span>COMPROBANTE ANULADO (RF-13) · SIN VALOR FISCAL NI COMERCIAL</span>
+</div>
+</div>
+<!-- Action Toolbar -->
+<div class="flex flex-wrap items-center justify-between gap-space-md bg-surface-container-lowest p-space-md rounded-xl shadow-sm">
+<a class="inline-flex items-center gap-space-xs px-space-md py-space-sm bg-surface-container-low text-on-surface hover:bg-surface-container-high font-label-md text-label-md rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+<span>Volver al Historial de Ventas</span>
+</a>
+<div class="flex flex-wrap items-center gap-space-sm">
+<button class="inline-flex items-center gap-space-xs px-space-md py-space-sm bg-primary text-on-primary hover:bg-primary-container font-label-md text-label-md rounded-lg shadow-sm transition-colors cursor-pointer" onclick="window.print()" type="button">
+<span class="material-symbols-outlined text-[20px]">print</span>
+<span>Imprimir Comprobante Oficial</span>
+</button>
+<button class="inline-flex items-center gap-space-xs px-space-md py-space-sm bg-surface-container-low text-secondary hover:bg-secondary-fixed font-label-md text-label-md rounded-lg transition-colors cursor-pointer" onclick="document.getElementById('modal-sql-log').classList.toggle('hidden')" type="button">
+<span class="material-symbols-outlined text-[20px]">terminal</span>
+<span>Ver Trazabilidad Transaccional (SQL Log)</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Modal / Drawer SQL Traceability Log (Default hidden) -->
+<div class="hidden no-print fixed inset-0 z-50 flex items-center justify-center p-space-md bg-inverse-surface/40 backdrop-blur-sm" id="modal-sql-log">
+<div class="bg-surface-container-lowest max-w-3xl w-full rounded-xl shadow-xl overflow-hidden flex flex-col max-h-[870px]">
+<div class="p-space-md bg-surface-container flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[24px]">terminal</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Trazabilidad ACID PDO MySQL · Transacción #TX-1042-REV</span>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-space-xs rounded-lg" onclick="document.getElementById('modal-sql-log').classList.add('hidden')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-space-lg overflow-y-auto space-y-space-md font-mono text-body-sm text-on-surface-variant bg-surface-container-lowest">
+<div class="p-space-sm bg-surface-container-low rounded-lg text-primary font-bold">
+          -- CONTEXTO: Reversión Completa bajo PDO::beginTransaction() / commit()
+        </div>
+<pre class="bg-surface-container-highest/40 p-space-md rounded-lg text-on-surface overflow-x-auto text-[13px] leading-relaxed">START TRANSACTION;
+
+-- 1. Actualización de estado en Comprobante
+UPDATE comprobantes 
+SET estado_comprobante = 'ANULADO',
+    fecha_anulacion = '2024-11-14 11:42:18',
+    usuario_anula_id = 1,
+    motivo_anulacion = 'Garantía/Devolución cliente'
+WHERE id_comprobante = 1042;
+
+-- 2. Modificación de la Venta
+UPDATE ventas 
+SET estado_venta = 'ANULADA'
+WHERE id_venta = 1042;
+
+-- 3. Reingreso de Stock en Kardex (InnoDB)
+INSERT INTO movimientos_kardex (id_producto, tipo_movimiento, cantidad, id_referencia, motivo)
+VALUES 
+  (401, 'ENTRADA_DEVOLUCION', 1, 1042, 'Anulación VTA-1042 / Fallo RAM'),
+  (205, 'ENTRADA_DEVOLUCION', 1, 1042, 'Anulación VTA-1042 / Reingreso Mouse');
+
+UPDATE productos SET stock_actual = stock_actual + 1 WHERE id_producto = 401;
+UPDATE productos SET stock_actual = stock_actual + 1 WHERE id_producto = 205;
+
+-- 4. Registro de Egreso de Caja Chica Turno #089
+INSERT INTO movimientos_caja (id_caja, tipo_flujo, monto, concepto, id_comprobante_rel)
+VALUES (89, 'EGRESO', 295000.00, 'Reembolso efectivo cliente Juan Morales #VTA-1042', 1042);
+
+COMMIT; -- Commit satisfactorio hash SHA-256 verificado.</pre>
+<div class="flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant pt-space-xs">
+<span>Aislamiento: REPEATABLE-READ</span>
+<span>Latencia transaccional: 14.8 ms</span>
+</div>
+</div>
+<div class="p-space-md bg-surface-container-low flex justify-end">
+<button class="px-space-md py-space-xs bg-primary text-on-primary rounded-lg font-label-md text-label-md" onclick="document.getElementById('modal-sql-log').classList.add('hidden')">Cerrar Inspector</button>
+</div>
+</div>
+</div>
+<!-- Document Container Centered -->
+<div class="w-full max-w-5xl mx-auto px-gutter-sm sm:px-gutter pb-space-2xl">
+<!-- Physical Document Sheet Structure -->
+<div class="relative bg-surface-container-lowest rounded-xl shadow-md p-space-md sm:p-space-xl overflow-hidden flex flex-col gap-space-lg" id="printable-voucher">
+<!-- GIANT WATERMARK OVERLAY -->
+<div class="pointer-events-none select-none absolute inset-0 z-20 flex items-center justify-center overflow-hidden opacity-[0.14] sm:opacity-[0.16]">
+<div class="transform -rotate-[28deg] flex flex-col items-center justify-center border-8 border-dashed border-error p-space-xl rounded-2xl w-[90%] max-w-2xl text-center">
+<span class="font-display-lg text-[64px] sm:text-[110px] leading-none font-bold text-error tracking-widest uppercase">
+            ANULADO
+          </span>
+<span class="font-headline-sm text-headline-sm sm:text-headline-md font-bold text-error tracking-normal uppercase mt-space-xs">
+            REVERSIÓN TRANSACCIONAL ACID · ART. RF-13
+          </span>
+<span class="font-label-sm text-label-sm font-semibold text-error tracking-widest uppercase mt-space-xs">
+            HASH INMUTABLE: a4c8f932e67df14800b189e · EFECTIVO REEMBOLSADO
+          </span>
+</div>
+</div>
+<!-- Banner de Auditoría de Anulación Transaccional -->
+<div class="relative z-10 w-full bg-error-container text-on-error-container p-space-md rounded-xl flex flex-col md:flex-row gap-space-md items-start md:items-center">
+<div class="w-12 h-12 rounded-xl bg-error text-on-error flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[28px]">shield_with_heart</span>
+</div>
+<div class="flex-1 flex flex-col gap-space-xs">
+<div class="flex flex-wrap items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm font-bold text-on-error-container">AVISO DE INVALIDEZ TRANSACCIONAL (RF-13 &amp; TRD §3.7)</span>
+<span class="px-space-xs py-0.5 rounded bg-error text-on-error font-label-sm text-label-sm font-bold">REVOCADO</span>
+</div>
+<p class="font-body-md text-body-md text-on-error-container/90">
+            Este comprobante fue formalmente revocado en base de datos por el Administrador <strong>Prof. Carlos Mendoza (ID: 1)</strong>. 
+            <strong>Causal:</strong> Devolución solicitada por cliente por garantía / incompatibilidad técnica de RAM. Dinero restituido en efectivo en sesión de caja #089 y stock reingresado a kardex (movimiento #MOV-0089).
+          </p>
+<div class="flex flex-wrap items-center gap-x-space-lg gap-y-space-xs font-label-sm text-label-sm text-on-error-container/80 pt-space-xs">
+<span class="inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">payments</span>
+              Folio de Egreso de Caja: <strong>#EGR-0042</strong> (-$295,000 COP)
+            </span>
+<span class="inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">check_circle</span>
+              Commit PDO: <strong>#TX-1042-REV</strong>
+</span>
+<span class="inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">inventory_2</span>
+              Kardex: <strong>2 Unidades Reingresadas</strong>
+</span>
+</div>
+</div>
+</div>
+<!-- Encabezado del Comprobante (Identidad Institucional + Caja Fiscal) -->
+<div class="relative z-10 flex flex-col md:flex-row justify-between gap-space-lg items-start">
+<!-- Institución Emisora -->
+<div class="flex flex-col gap-space-xs max-w-md">
+<div class="flex items-center gap-space-sm mb-space-xs">
+<div class="w-10 h-10 rounded-lg bg-primary text-on-primary flex items-center justify-center font-display-lg text-headline-md font-bold">
+              SV
+            </div>
+<div>
+<span class="font-headline-md text-headline-md text-on-surface font-bold tracking-tight">SISTEMA DE VENTAS &amp; FACTURACIÓN</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant font-semibold">Entorno de Práctica Tecnológica · Arquitectura MVC Modular PHP Nativo + MySQL InnoDB</p>
+</div>
+</div>
+<div class="text-body-sm font-body-sm text-on-surface-variant space-y-0.5">
+<p><strong>NIT:</strong> 901.482.019-3 · Régimen Simplificado / Control Académico</p>
+<p><strong>Dirección:</strong> Av. Tecnológica # 45 - 12, Sede Central, Bogotá D.C.</p>
+<p><strong>Contacto:</strong> Tel: (601) 555-0199 · Email: facturacion@uniproyecto.edu.co</p>
+<p class="text-[11px] text-outline">Resolución DIAN Formativa #187640001 vigente para prácticas de aula</p>
+</div>
+</div>
+<!-- Caja de Control Fiscal Interno -->
+<div class="w-full md:w-80 bg-surface-container-low p-space-md rounded-xl flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-bold">DOCUMENTO INTERNO</span>
+<span class="px-space-xs py-0.5 rounded-full bg-error text-on-error font-label-sm text-label-sm font-bold">ANULADO</span>
+</div>
+<div class="font-headline-md text-headline-md font-bold text-on-surface">
+            COMP-00001042
+          </div>
+<div class="text-body-sm font-body-sm text-on-surface-variant space-y-1 pt-space-xs">
+<div class="flex justify-between">
+<span>Venta Relacionada:</span>
+<strong class="text-on-surface">#VTA-1042</strong>
+</div>
+<div class="flex justify-between">
+<span>Estado en BD:</span>
+<span class="font-mono font-semibold text-error">ANULADO</span>
+</div>
+<div class="flex justify-between text-[11px]">
+<span>Emisión Original:</span>
+<span class="text-on-surface">14 Nov 2024, 11:15 AM</span>
+</div>
+<div class="flex justify-between text-[11px]">
+<span>Hora Anulación:</span>
+<span class="text-error font-semibold">14 Nov 2024, 11:42 AM</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bloque de Datos de la Operación y Participantes (3 Column Grid) -->
+<div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-space-md bg-surface-container-low p-space-md rounded-xl">
+<!-- Cliente -->
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm uppercase font-bold text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-secondary">person</span>
+            CLIENTE RECEPTOR
+          </span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">Juan Morales</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">CC: 1.094.882.110</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Teléfono: 312 458 9012</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Ciudad: Bogotá D.C., Colombia</span>
+</div>
+<!-- Vendedor -->
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm uppercase font-bold text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-secondary">badge</span>
+            VENDEDOR ASIGNADO
+          </span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">Laura Gómez</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Código: VEND-04</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Rol: Asesor Comercial POS</span>
+<span class="font-label-sm text-label-sm text-outline">Comisión reversada automáticamente</span>
+</div>
+<!-- Cajero -->
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm uppercase font-bold text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-secondary">point_of_sale</span>
+            CAJERO LIQUIDADOR
+          </span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">Andrés Ruiz</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Código: CAJ-02 · Caja General</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Turno de Caja: #089 (Efectivo)</span>
+<span class="font-label-sm text-label-sm text-error font-semibold">Egreso compensatorio aplicado</span>
+</div>
+</div>
+<!-- Tabla Detallada de Ítems / Productos con Estado de Reversión Kardex -->
+<div class="relative z-10 flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md font-bold text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">inventory</span>
+            DETALLE DE PRODUCTOS FACTURADOS Y REINTEGRO KARDEX
+          </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">2 líneas de artículos revocadas</span>
+</div>
+<div class="w-full overflow-x-auto rounded-xl shadow-sm bg-surface-container-lowest">
+<table class="w-full text-left font-body-sm text-body-sm border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-table-header text-table-header uppercase">
+<th class="py-space-sm px-space-md">SKU / CÓDIGO</th>
+<th class="py-space-sm px-space-md">DESCRIPCIÓN DEL ÍTEM</th>
+<th class="py-space-sm px-space-md text-center">CANT.</th>
+<th class="py-space-sm px-space-md text-right">PRECIO UNITARIO</th>
+<th class="py-space-sm px-space-md text-right">SUBTOTAL</th>
+<th class="py-space-sm px-space-md text-center">ESTADO KARDEX POST-ANULACIÓN</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-high/40">
+<!-- Item 1 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-space-md px-space-md font-mono text-on-surface font-semibold">COD-RAM-401</td>
+<td class="py-space-md px-space-md">
+<div class="font-semibold text-on-surface">Memoria RAM Kingston Fury 16GB DDR4 3200MHz CL16</div>
+<div class="text-[12px] text-on-surface-variant">Categoría: Componentes de Alto Rendimiento · Serial: KF432C16BB1-16</div>
+</td>
+<td class="py-space-md px-space-md text-center font-bold text-on-surface">1</td>
+<td class="py-space-md px-space-md text-right font-mono text-on-surface">$215,000 COP</td>
+<td class="py-space-md px-space-md text-right font-mono font-semibold text-on-surface line-through opacity-70">$215,000 COP</td>
+<td class="py-space-md px-space-md text-center">
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-bold">
+<span class="material-symbols-outlined text-[14px]">done_all</span>
+                    +1 Reingresado (Kardex OK)
+                  </span>
+</td>
+</tr>
+<!-- Item 2 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-space-md px-space-md font-mono text-on-surface font-semibold">COD-MOU-205</td>
+<td class="py-space-md px-space-md">
+<div class="font-semibold text-on-surface">Mouse Inalámbrico Logitech M170 Negro</div>
+<div class="text-[12px] text-on-surface-variant">Receptor Nano USB 2.4GHz · Batería AA Incluida</div>
+</td>
+<td class="py-space-md px-space-md text-center font-bold text-on-surface">1</td>
+<td class="py-space-md px-space-md text-right font-mono text-on-surface">$80,000 COP</td>
+<td class="py-space-md px-space-md text-right font-mono font-semibold text-on-surface line-through opacity-70">$80,000 COP</td>
+<td class="py-space-md px-space-md text-center">
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-bold">
+<span class="material-symbols-outlined text-[14px]">done_all</span>
+                    +1 Reingresado (Kardex OK)
+                  </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Resumen de Totales y Liquidación Contable -->
+<div class="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-space-lg items-start pt-space-xs">
+<!-- Observaciones y Constancia -->
+<div class="md:col-span-7 bg-surface-container-low p-space-md rounded-xl flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs font-label-md text-label-md font-bold text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[20px]">assignment</span>
+            CONSTANCIA DE DESCARGO Y RESTITUCIÓN
+          </div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            Se deja constancia física e informática de que la suma de <strong>DOSCIENTOS NOVENTA Y CINCO MIL PESOS M/CTE ($295,000 COP)</strong> fue entregada a entera satisfacción al comprador Juan Morales en ventanilla de caja #089. Conforme a las reglas de integridad referencial del Sistema de Ventas, la factura queda invalidada para declaraciones fiscales y el inventario disponible actualizado en tiempo real.
+          </p>
+<div class="pt-space-xs flex items-center gap-space-md text-label-sm text-label-sm text-outline">
+<span>Método de Devolución: Efectivo</span>
+<span>·</span>
+<span>Aprobado por: Administrador General</span>
+</div>
+</div>
+<!-- Cuadro Contable -->
+<div class="md:col-span-5 bg-surface-container-low p-space-md rounded-xl flex flex-col gap-space-xs">
+<div class="flex justify-between items-center text-body-sm font-body-sm text-on-surface-variant">
+<span>Subtotal Bruto Original:</span>
+<span class="font-mono text-on-surface">$295,000 COP</span>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm text-on-surface-variant">
+<span>IVA (0% Régimen Académico):</span>
+<span class="font-mono text-on-surface">$0 COP</span>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm text-on-surface-variant pt-space-xs">
+<span>Total Facturado Inicial:</span>
+<span class="font-mono text-on-surface-variant line-through font-bold">$295,000 COP</span>
+</div>
+<div class="my-space-xs h-[1px] bg-surface-container-highest"></div>
+<div class="flex justify-between items-center text-body-sm font-body-sm text-error font-semibold">
+<span>Monto Total Reembolsado:</span>
+<span class="font-mono">-$295,000 COP</span>
+</div>
+<!-- Saldo Final Destacado -->
+<div class="p-space-sm bg-surface-container-highest/60 rounded-lg flex justify-between items-center mt-space-xs">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-bold uppercase text-on-surface">SALDO EN CUENTA</span>
+<span class="text-[11px] text-on-surface-variant">Operación Liquidada a Cero</span>
+</div>
+<div class="font-display-lg text-headline-lg font-bold font-metric-stat text-on-surface">
+              $0.00 <span class="text-body-sm font-normal text-on-surface-variant">COP</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Pie del Comprobante: Firmas Digitales y Hash SHA-256 de Inmutabilidad -->
+<div class="relative z-10 mt-space-md pt-space-lg bg-surface-container-low p-space-md rounded-xl flex flex-col sm:flex-row items-center justify-between gap-space-lg">
+<!-- Hash & Security Details -->
+<div class="flex items-center gap-space-md flex-1">
+<!-- Inline Minimal SVG QR Code Placeholder -->
+<div class="w-20 h-20 bg-surface-container-lowest p-1.5 rounded-lg shrink-0 flex items-center justify-center shadow-sm">
+<svg class="w-full h-full text-on-surface" fill="currentColor" viewbox="0 0 100 100">
+<!-- Corner TL -->
+<rect fill="currentColor" height="28" rx="2" width="28" x="5" y="5"></rect>
+<rect fill="#FFFFFF" height="20" rx="1" width="20" x="9" y="9"></rect>
+<rect fill="currentColor" height="12" rx="1" width="12" x="13" y="13"></rect>
+<!-- Corner TR -->
+<rect fill="currentColor" height="28" rx="2" width="28" x="67" y="5"></rect>
+<rect fill="#FFFFFF" height="20" rx="1" width="20" x="71" y="9"></rect>
+<rect fill="currentColor" height="12" rx="1" width="12" x="75" y="13"></rect>
+<!-- Corner BL -->
+<rect fill="currentColor" height="28" rx="2" width="28" x="5" y="67"></rect>
+<rect fill="#FFFFFF" height="20" rx="1" width="20" x="9" y="71"></rect>
+<rect fill="currentColor" height="12" rx="1" width="12" x="13" y="75"></rect>
+<!-- Data Dots Pattern -->
+<rect fill="currentColor" height="8" width="8" x="38" y="8"></rect>
+<rect fill="currentColor" height="8" width="8" x="50" y="16"></rect>
+<rect fill="currentColor" height="8" width="16" x="38" y="25"></rect>
+<rect fill="currentColor" height="8" width="8" x="8" y="38"></rect>
+<rect fill="currentColor" height="8" width="8" x="22" y="44"></rect>
+<rect fill="currentColor" height="8" width="8" x="38" y="38"></rect>
+<rect fill="currentColor" height="8" width="16" x="52" y="38"></rect>
+<rect fill="currentColor" height="8" width="18" x="74" y="38"></rect>
+<rect fill="currentColor" height="14" width="14" x="38" y="52"></rect>
+<rect fill="currentColor" height="8" width="12" x="58" y="52"></rect>
+<rect fill="currentColor" height="8" width="16" x="76" y="52"></rect>
+<rect fill="currentColor" height="10" width="20" x="72" y="66"></rect>
+<rect fill="currentColor" height="18" width="8" x="38" y="72"></rect>
+<rect fill="currentColor" height="8" width="14" x="52" y="72"></rect>
+<rect fill="currentColor" height="8" width="20" x="52" y="84"></rect>
+<rect fill="currentColor" height="10" width="14" x="78" y="82"></rect>
+</svg>
+</div>
+<div class="flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">CADENA CRIPTOGRÁFICA DE AUDITORÍA (SHA-256)</span>
+<span class="font-mono text-[11px] text-on-surface-variant break-all">
+              a4c8f932e67df14800b189e4912c9bf821eef00c7a523bca0427181fcd8902ef
+            </span>
+<div class="flex items-center gap-space-xs text-[11px] text-on-surface-variant mt-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">verified</span>
+<span>Inmutabilidad de log verificada con motor PDO MySQL InnoDB</span>
+</div>
+</div>
+</div>
+<!-- Academic & Legal Footnote -->
+<div class="max-w-xs text-right sm:text-right text-[11px] text-on-surface-variant leading-tight">
+<p class="font-bold text-on-surface">Lineamiento Formativo RF-13 / RF-12</p>
+<p>
+            Los registros en las tablas 'ventas', 'detalle_venta', 'pagos', 'comprobantes' y 'movimientos_caja' preservan su inmutabilidad histórica con fines de auditoría forense y control académico.
+          </p>
+</div>
+</div>
+</div>
+<!-- Additional Quick Action Footnote for Teachers/Auditors (No Print) -->
+<div class="no-print mt-space-md flex flex-wrap items-center justify-between gap-space-md text-label-sm font-label-sm text-on-surface-variant px-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-secondary">info</span>
+<span>Para pruebas de impresión escolar, use el comando rápido <kbd class="px-1.5 py-0.5 bg-surface-container-high rounded text-on-surface font-mono">Ctrl + P</kbd> / <kbd class="px-1.5 py-0.5 bg-surface-container-high rounded text-on-surface font-mono">Cmd + P</kbd></span>
+</div>
+<div>
+<span>ID Comprobante en Servidor: <strong class="text-on-surface">#1042</strong></span>
+</div>
+</div>
+</div>
+</div></main><footer class="w-full bg-surface-container-low py-space-md"><div class="w-full px-gutter flex flex-col md:flex-row items-center justify-between gap-space-sm font-label-sm text-label-sm text-on-surface-variant"><div>Proyecto Formativo Académico · Semestre Lectivo 2024-II · Arquitectura MVC Modular</div><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[16px] text-tertiary-fixed-dim">database</span><span>Estado BD: Conectado (PDO InnoDB)</span></div><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[16px] text-on-surface-variant">timer</span><span>Sesión: 30 min activos</span></div></div></div></footer></body></html>
