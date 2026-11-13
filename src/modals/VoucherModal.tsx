@@ -1,19 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Sale } from '../types';
 
 interface VoucherModalProps {
   sale: Sale | null;
   isOpen: boolean;
   onClose: () => void;
-  onOpenSqlLog?: () => void;
 }
 
 export const VoucherModal: React.FC<VoucherModalProps> = ({
   sale,
   isOpen,
   onClose,
-  onOpenSqlLog,
 }) => {
+  const [isThermalPreview, setIsThermalPreview] = useState(false);
+
   if (!isOpen || !sale) return null;
 
   const isAnulada = sale.status === 'ANULADA';
@@ -38,29 +38,36 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
             </div>
             {isAnulada && (
               <span className="ml-2 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40">
-                REVOCADO (RF-13)
+                ANULADO
               </span>
             )}
           </div>
 
-          <div className="flex items-center gap-2">
-            {onOpenSqlLog && (
-              <button
-                onClick={onOpenSqlLog}
-                className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[16px]">terminal</span>
-                <span>Log Transaccional PDO</span>
-              </button>
-            )}
+          <div className="flex flex-wrap items-center gap-2">
             <button
-              onClick={handlePrint}
-              className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1 shadow-sm transition-colors cursor-pointer"
+              type="button"
+              onClick={() => setIsThermalPreview((prev) => !prev)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer border ${
+                isThermalPreview
+                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                  : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
+              }`}
+              title="Alternar vista previa de tirilla térmica 80mm"
             >
-              <span className="material-symbols-outlined text-[16px]">print</span>
-              <span>Imprimir Ficha Oficial</span>
+              <span className="material-symbols-outlined text-[16px]">receipt</span>
+              <span>{isThermalPreview ? 'Vista 80mm Activa' : 'Vista 80mm'}</span>
             </button>
             <button
+              type="button"
+              onClick={handlePrint}
+              className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+              title="Imprimir ticket optimizado para impresora térmica de 80mm"
+            >
+              <span className="material-symbols-outlined text-[16px]">print</span>
+              <span>Print</span>
+            </button>
+            <button
+              type="button"
               onClick={onClose}
               className="w-8 h-8 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
             >
@@ -73,20 +80,22 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
         <div className="p-6 sm:p-10 max-h-[80vh] overflow-y-auto bg-slate-50/50">
           <div
             id="printable-voucher"
-            className="relative bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-10 max-w-2xl mx-auto overflow-hidden text-slate-900"
+            className={`relative bg-white rounded-xl border border-slate-200 shadow-sm mx-auto overflow-hidden text-slate-900 transition-all duration-200 ${
+              isThermalPreview ? 'w-[80mm] p-3 text-[11px]' : 'p-6 sm:p-10 max-w-2xl'
+            }`}
           >
             {/* GIANT WATERMARK OVERLAY IF ANULADA */}
             {isAnulada && (
               <div className="pointer-events-none select-none absolute inset-0 z-20 flex items-center justify-center overflow-hidden opacity-[0.16]">
                 <div className="transform -rotate-[28deg] flex flex-col items-center justify-center border-8 border-dashed border-rose-600 p-8 rounded-2xl w-[90%] text-center">
-                  <span className="font-extrabold text-[72px] sm:text-[100px] leading-none text-rose-600 tracking-widest uppercase">
+                  <span className="thermal-watermark-text font-extrabold text-[72px] sm:text-[100px] leading-none text-rose-600 tracking-widest uppercase">
                     ANULADO
                   </span>
                   <span className="text-sm sm:text-base font-bold text-rose-600 tracking-normal uppercase mt-2">
-                    REVERSIÓN TRANSACCIONAL ACID · ART. RF-13
+                    COMPROBANTE ANULADO · REEMBOLSO REGISTRADO
                   </span>
                   <span className="text-xs font-semibold text-rose-600 tracking-wider uppercase mt-1">
-                    HASH INMUTABLE: {sale.verificationHash?.slice(0, 20)}... · REEMBOLSADO
+                    CÓDIGO DE VERIFICACIÓN: {sale.verificationHash?.slice(0, 20)}...
                   </span>
                 </div>
               </div>
@@ -101,14 +110,14 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                 <div className="text-xs space-y-1">
                   <div className="flex items-center gap-2">
                     <strong className="text-sm font-bold text-rose-900">
-                      AVISO DE INVALIDEZ FISCAL (RF-13 & TRD §3.7)
+                      AVISO DE ANULACIÓN DE COMPROBANTE
                     </strong>
                     <span className="bg-rose-600 text-white text-[10px] px-2 py-0.2 rounded font-bold uppercase">
-                      Revocado
+                      Anulado
                     </span>
                   </div>
                   <p className="text-rose-800">
-                    Este comprobante fue formalmente revocado en base de datos. Causal:{' '}
+                    Este comprobante fue anulado formalmente. Causal:{' '}
                     <strong>{sale.cancellationReason || 'Reversión autorizada en mostrador.'}</strong>
                   </p>
                   <p className="text-[11px] text-rose-700 font-mono">
@@ -120,7 +129,11 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
             )}
 
             {/* Document Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-slate-200 gap-4">
+            <div
+              className={`thermal-stack flex justify-between pb-6 border-b border-slate-200 gap-4 ${
+                isThermalPreview ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'
+              }`}
+            >
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold text-base">
@@ -130,7 +143,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                     <h2 className="font-bold text-base text-slate-900 leading-tight">
                       SISTEMA DE GESTIÓN COMERCIAL & FACTURACIÓN
                     </h2>
-                    <p className="text-xs text-slate-500">Entorno Académico - PHP 8 MVC Monolítico</p>
+                    <p className="text-xs text-slate-500">Gestión Comercial &amp; Facturación</p>
                   </div>
                 </div>
                 <div className="text-xs text-slate-500 pt-1 space-y-0.5">
@@ -140,7 +153,13 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                 </div>
               </div>
 
-              <div className="text-left sm:text-right bg-slate-50 sm:bg-transparent p-3 sm:p-0 rounded-lg w-full sm:w-auto">
+              <div
+                className={`thermal-right-reset rounded-lg w-full ${
+                  isThermalPreview
+                    ? 'text-left bg-slate-50 p-2.5'
+                    : 'text-left sm:text-right bg-slate-50 sm:bg-transparent p-3 sm:p-0 sm:w-auto'
+                }`}
+              >
                 <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
                   Comprobante Correlativo
                 </span>
@@ -165,7 +184,11 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
             </div>
 
             {/* Client & Transaction Meta Info */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-5 border-b border-slate-200 text-xs">
+            <div
+              className={`thermal-grid-stack grid gap-4 py-5 border-b border-slate-200 text-xs ${
+                isThermalPreview ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'
+              }`}
+            >
               <div className="space-y-1">
                 <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
                   Información del Cliente
@@ -180,7 +203,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                 )}
               </div>
 
-              <div className="space-y-1 sm:text-right">
+              <div className={`thermal-right-reset space-y-1 ${isThermalPreview ? 'text-left' : 'sm:text-right'}`}>
                 <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
                   Datos de Emisión Fiscal
                 </span>
@@ -233,16 +256,17 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
             </div>
 
             {/* Calculations Breakdown */}
-            <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs">
+            <div
+              className={`thermal-stack pt-4 border-t border-slate-200 flex justify-between items-start gap-4 text-xs ${
+                isThermalPreview ? 'flex-col' : 'flex-col sm:flex-row sm:items-center'
+              }`}
+            >
               <div className="text-slate-500 space-y-1">
-                <p className="font-semibold text-slate-700">Normativa & Régimen:</p>
+                <p className="font-semibold text-slate-700">Normativa &amp; Régimen:</p>
                 <p>IVA incluido conforme a las disposiciones tributarias vigentes.</p>
-                <p className="font-mono text-[11px] text-slate-400">
-                  Driver: PDO_MYSQL · Engine: InnoDB · ACID Isolation Level: READ_COMMITTED
-                </p>
               </div>
 
-              <div className="w-full sm:w-64 space-y-1.5 self-end">
+              <div className={`w-full space-y-1.5 self-end ${isThermalPreview ? '' : 'sm:w-64'}`}>
                 <div className="flex justify-between text-slate-600">
                   <span>Subtotal Facturable:</span>
                   <span className="font-mono font-semibold">
@@ -277,7 +301,11 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
             </div>
 
             {/* Cryptographic SHA-256 Hash & QR Footer */}
-            <div className="mt-8 pt-4 border-t border-dashed border-slate-300 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div
+              className={`thermal-stack mt-8 pt-4 border-t border-dashed border-slate-300 flex items-center justify-between gap-4 ${
+                isThermalPreview ? 'flex-col items-start' : 'flex-col sm:flex-row'
+              }`}
+            >
               <div className="flex items-center gap-3">
                 {/* Visual QR Representation */}
                 <div className="w-14 h-14 bg-slate-900 text-white p-1 rounded flex items-center justify-center shrink-0">
@@ -285,16 +313,16 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                 </div>
                 <div className="text-[10px] text-slate-500 space-y-0.5">
                   <span className="uppercase font-bold tracking-wider text-slate-700 block">
-                    Trazabilidad Criptográfica SHA-256
+                    Código de Verificación Digital
                   </span>
                   <span className="font-mono text-slate-600 block break-all max-w-xs">
                     {sale.verificationHash || 'e4d909c290d0f0b1ca068ffaddf22cbd0a1f9401b874'}
                   </span>
-                  <span>Firma digital inmutable del commit transaccional.</span>
+                  <span>Comprobante emitido por el sistema de facturación.</span>
                 </div>
               </div>
 
-              <div className="text-right text-[11px] text-slate-400">
+              <div className="thermal-right-reset text-right text-[11px] text-slate-400">
                 <p>Original para el Cliente</p>
                 <p className="font-semibold text-slate-600">¡Gracias por su compra!</p>
               </div>
@@ -303,14 +331,25 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
         </div>
 
         {/* Modal Bottom Footer (No Print) */}
-        <div className="no-print p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
-          <span>Vista preliminar de impresión compatible con impresoras de tirilla y formato carta.</span>
-          <button
-            onClick={onClose}
-            className="px-4 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold cursor-pointer"
-          >
-            Cerrar Vista
-          </button>
+        <div className="no-print p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+          <span>Formato optimizado para impresoras térmicas de tirilla de 80mm.</span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handlePrint}
+              className="px-4 py-1.5 rounded-lg bg-slate-900 hover:bg-blue-600 text-white font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[16px]">print</span>
+              <span>Print (80mm)</span>
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold cursor-pointer"
+            >
+              Cerrar Vista
+            </button>
+          </div>
         </div>
       </div>
     </div>

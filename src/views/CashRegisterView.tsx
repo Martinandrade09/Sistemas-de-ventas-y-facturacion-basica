@@ -8,7 +8,6 @@ interface CashRegisterViewProps {
   currentUser: User;
   onConfirmPayment: (saleId: number, method: 'EFECTIVO' | 'TRANSFERENCIA', amountReceived?: number) => void;
   onOpenBlindCountModal: () => void;
-  onOpenSqlModal: () => void;
   onViewVoucher: (sale: Sale) => void;
   onToast: (msg: string, isError?: boolean) => void;
 }
@@ -20,7 +19,6 @@ export const CashRegisterView: React.FC<CashRegisterViewProps> = ({
   currentUser,
   onConfirmPayment,
   onOpenBlindCountModal,
-  onOpenSqlModal,
   onViewVoucher,
   onToast,
 }) => {
@@ -54,7 +52,7 @@ export const CashRegisterView: React.FC<CashRegisterViewProps> = ({
     for (const item of activeSale.items) {
       const prod = products.find((p) => p.id === item.productId);
       if (prod && prod.currentStock < item.quantity) {
-        onToast(`Error de concurrencia: Stock insuficiente para ${prod.name} (Stock: ${prod.currentStock}, Requerido: ${item.quantity}).`, true);
+        onToast(`Stock insuficiente para ${prod.name} (Disponible: ${prod.currentStock}, Requerido: ${item.quantity}).`, true);
         return;
       }
     }
@@ -72,7 +70,7 @@ export const CashRegisterView: React.FC<CashRegisterViewProps> = ({
         cashierName: `${currentUser.name} (ID: ${currentUser.id})`,
         verificationHash: 'e4d909c290d0f0b1ca068ffaddf22cbd0',
       });
-      onToast(`Transacción #${activeSale.correlativeNumber} confirmada. Stock y Caja actualizados (COMMIT PDO).`, false);
+      onToast(`Venta #${activeSale.correlativeNumber} cobrada con éxito. Inventario y caja actualizados.`, false);
     }, 800);
   };
 
@@ -184,27 +182,7 @@ export const CashRegisterView: React.FC<CashRegisterViewProps> = ({
         </div>
       </div>
 
-      {/* 3. Concurrency Architecture Banner */}
-      <div className="p-4 rounded-2xl bg-blue-50/80 border border-blue-200 flex items-start gap-3">
-        <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5">
-          <span className="material-symbols-outlined text-[20px]">lock</span>
-        </div>
-        <div className="text-xs text-blue-900 space-y-0.5">
-          <div className="flex items-center gap-2">
-            <strong className="font-bold text-slate-900">
-              Arquitectura Transaccional: Control de Concurrencia PESSIMISTIC_WRITE
-            </strong>
-            <code className="bg-blue-100 text-blue-800 font-bold px-2 py-0.2 rounded font-mono text-[11px]">
-              SELECT ... FOR UPDATE
-            </code>
-          </div>
-          <p className="text-slate-600">
-            En el motor relacional (InnoDB / MySQL), la confirmación de pago activa una transacción atómica mediante PHP Data Objects (PDO). Los registros de inventario correspondientes a los artículos de la orden se bloquean temporalmente a nivel de fila durante la confirmación, garantizando que el stock auditado no sea vendido simultáneamente en otro terminal POS o canal virtual.
-          </p>
-        </div>
-      </div>
-
-      {/* 4. Main Two Column Section: Pending Queue vs Checkout Gateway */}
+      {/* 3. Main Two Column Section: Pending Queue vs Checkout Gateway */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column (7 cols): Ventas Pendientes por Cobrar */}
         <div className="lg:col-span-7 flex flex-col gap-5">
@@ -294,53 +272,6 @@ export const CashRegisterView: React.FC<CashRegisterViewProps> = ({
             )}
           </div>
 
-          {/* Database Row Lock State Scheme (Pedagogical) */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[16px] text-blue-600">table_rows</span>
-                Esquema de Estado en Base de Datos (Tabla: <code className="font-mono text-slate-700">`ventas_transaccion`</code>)
-              </span>
-              <span className="text-[10px] font-mono text-slate-400">PDO Driver Session</span>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs font-mono">
-                <thead>
-                  <tr className="bg-slate-50 text-slate-400 uppercase text-[10px] font-bold border-b border-slate-200">
-                    <th className="py-2 px-3">ID_VENTA</th>
-                    <th className="py-2 px-3">FK_CAJERO</th>
-                    <th className="py-2 px-3">TOTAL_BRUTO</th>
-                    <th className="py-2 px-3">ESTADO_PROCESO</th>
-                    <th className="py-2 px-3">LOCK_STOCK</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
-                  {pendingSales.slice(0, 3).map((s, idx) => (
-                    <tr key={s.id} className="hover:bg-slate-50">
-                      <td className="py-2 px-3 font-bold text-blue-600">#{s.id}</td>
-                      <td className="py-2 px-3">{idx === 0 ? '042 (Andrés Ruiz)' : 'Pendiente'}</td>
-                      <td className="py-2 px-3 font-bold">${s.total.toLocaleString('es-CO')}</td>
-                      <td className="py-2 px-3">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          idx === 0 ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-600'
-                        }`}>
-                          {idx === 0 ? 'PAGO_EN_CURSO' : 'EN_ESPERA'}
-                        </span>
-                      </td>
-                      <td className="py-2 px-3">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          idx === 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'
-                        }`}>
-                          {idx === 0 ? 'ACTIVO (Row Locked)' : 'LIBRE'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
         </div>
 
         {/* Right Column (5 cols): Pasarela Transaccional de Cobro */}
@@ -440,7 +371,7 @@ export const CashRegisterView: React.FC<CashRegisterViewProps> = ({
                         </span>
                       </div>
                       <p className="text-[11px] text-slate-500">
-                        Asistencia Operativa: El valor de cambio es un cálculo de ayuda al cajero. En la base de datos se almacena estrictamente el importe exacto de la venta (${activeSale.total.toLocaleString('es-CO')}).
+                        Asistencia Operativa: El valor de cambio es un cálculo de ayuda al cajero. El comprobante registra estrictamente el importe exacto de la venta (${activeSale.total.toLocaleString('es-CO')}).
                       </p>
                     </div>
                   </div>
@@ -463,7 +394,7 @@ export const CashRegisterView: React.FC<CashRegisterViewProps> = ({
                   {isProcessing ? (
                     <>
                       <span className="material-symbols-outlined animate-spin text-[18px]">autorenew</span>
-                      <span>Ejecutando COMMIT PDO...</span>
+                      <span>Procesando cobro...</span>
                     </>
                   ) : (
                     <>
@@ -472,9 +403,6 @@ export const CashRegisterView: React.FC<CashRegisterViewProps> = ({
                     </>
                   )}
                 </button>
-                <p className="text-[10px] text-center text-slate-400 font-mono">
-                  Ejecutar Transacción PDO (SELECT ... FOR UPDATE)
-                </p>
               </div>
             ) : (
               <div className="p-8 text-center text-xs text-slate-400">
@@ -538,27 +466,21 @@ export const CashRegisterView: React.FC<CashRegisterViewProps> = ({
         </div>
       </div>
 
-      {/* 5. Bottom Action & Pedagogical Bar */}
+      {/* 5. Bottom Action Bar */}
       <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-[18px]">school</span>
+            <span className="material-symbols-outlined text-[18px]">point_of_sale</span>
           </div>
           <div>
-            <h4 className="font-bold text-slate-900">Trazabilidad Pedagógica (Requisitos RF-09 a RF-12)</h4>
+            <h4 className="font-bold text-slate-900">Control de Cierre y Arqueo de Caja</h4>
             <span className="text-slate-500 text-[11px]">
-              RF-09: Control de apertura | RF-10: Cierre y cuadre ciego | RF-11: Registro de recaudos | RF-12: Emisión y bloqueo
+              Verificación de apertura, registro de recaudos y cierre ciego de turno.
             </span>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={onOpenSqlModal}
-            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors cursor-pointer"
-          >
-            Documentación SQL
-          </button>
           <button
             onClick={onOpenBlindCountModal}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-sm transition-colors cursor-pointer"

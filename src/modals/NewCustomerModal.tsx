@@ -42,7 +42,7 @@ export const NewCustomerModal: React.FC<NewCustomerModalProps> = ({
     };
 
     onSaveCustomer(created);
-    onToast(`Cliente "${created.name}" registrado con éxito en base de datos.`, false);
+    onToast(`Cliente "${created.name}" registrado con éxito.`, false);
     onClose();
   };
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   INITIAL_USERS,
   INITIAL_PRODUCTS,
@@ -21,7 +21,6 @@ import { VoucherModal } from './modals/VoucherModal';
 import { StockAdjustmentModal } from './modals/StockAdjustmentModal';
 import { BlindCashCountModal } from './modals/BlindCashCountModal';
 import { NewCustomerModal } from './modals/NewCustomerModal';
-import { SqlTraceModal } from './modals/SqlTraceModal';
 
 export default function App() {
   // Navigation State
@@ -51,7 +50,6 @@ export default function App() {
 
   const [isBlindCountModalOpen, setIsBlindCountModalOpen] = useState(false);
   const [isNewCustomerModalOpen, setIsNewCustomerModalOpen] = useState(false);
-  const [isSqlModalOpen, setIsSqlModalOpen] = useState(false);
 
   // Toast Notification State
   const [toast, setToast] = useState<{ message: string; isError: boolean; visible: boolean }>({
@@ -59,13 +57,17 @@ export default function App() {
     isError: false,
     visible: false,
   });
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const showToast = (message: string, isError: boolean = false) => {
+  const showToast = useCallback((message: string, isError: boolean = false) => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
     setToast({ message, isError, visible: true });
-    setTimeout(() => {
+    toastTimerRef.current = setTimeout(() => {
       setToast((prev) => ({ ...prev, visible: false }));
-    }, 4500);
-  };
+    }, 5000);
+  }, []);
 
   // --- Handlers & Business Logic ---
 
@@ -254,7 +256,7 @@ export default function App() {
     );
 
     showToast(
-      `Transacción #${saleToVoid.correlativeNumber} anulada con éxito en MySQL InnoDB (Kardex y Caja Revertidos).`,
+      `Venta #${saleToVoid.correlativeNumber} anulada con éxito. Inventario y caja actualizados.`,
       false
     );
   };
@@ -366,7 +368,6 @@ export default function App() {
             currentUser={currentUser}
             onConfirmPayment={handleConfirmPayment}
             onOpenBlindCountModal={() => setIsBlindCountModalOpen(true)}
-            onOpenSqlModal={() => setIsSqlModalOpen(true)}
             onViewVoucher={handleViewVoucher}
             onToast={showToast}
           />
@@ -387,19 +388,20 @@ export default function App() {
           <ReportsView
             sales={sales}
             products={products}
+            kardexMovements={kardexMovements}
             cashSession={cashSession}
+            cashMovements={cashMovements}
             currentUser={currentUser}
             onOpenVoidModal={handleOpenVoidModal}
             onViewVoucher={handleViewVoucher}
             onOpenStockModal={handleOpenStockModal}
-            onOpenSqlModal={() => setIsSqlModalOpen(true)}
             onToast={showToast}
           />
         )}
       </main>
 
       {/* 3. Global Footer */}
-      <Footer onOpenSqlModal={() => setIsSqlModalOpen(true)} />
+      <Footer />
 
       {/* 4. Modals and Drawers */}
       <VoidSaleModal
@@ -415,10 +417,6 @@ export default function App() {
         sale={activeVoucherSale}
         isOpen={isVoucherModalOpen}
         onClose={() => setIsVoucherModalOpen(false)}
-        onOpenSqlLog={() => {
-          setIsVoucherModalOpen(false);
-          setIsSqlModalOpen(true);
-        }}
       />
 
       <StockAdjustmentModal
@@ -446,11 +444,6 @@ export default function App() {
         onToast={showToast}
       />
 
-      <SqlTraceModal
-        isOpen={isSqlModalOpen}
-        onClose={() => setIsSqlModalOpen(false)}
-      />
-
       {/* 5. Dynamic Toast Notification */}
       {toast.visible && (
         <div
@@ -460,8 +453,12 @@ export default function App() {
               : 'bg-slate-900 text-slate-100 border-slate-700'
           }`}
         >
-          <span className="material-symbols-outlined text-[20px] text-emerald-400">
-            {toast.isError ? 'error' : 'check_circle'}
+          <span
+            className={`material-symbols-outlined text-[20px] ${
+              toast.isError ? 'text-rose-300' : 'text-emerald-400'
+            }`}
+          >
+            {toast.isError ? 'warning' : 'check_circle'}
           </span>
           <span>{toast.message}</span>
           <button

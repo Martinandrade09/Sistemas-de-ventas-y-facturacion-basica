@@ -31,8 +31,8 @@ export const VoidSaleModal: React.FC<VoidSaleModalProps> = ({
   const isReasonValid = charCount >= 10;
   const isPaid = sale.status === 'PAGADA';
 
-  const handleSimulateRollback = () => {
-    onToast('Simulación de ROLLBACK ejecutada: Ningún cambio fue persistido en MySQL InnoDB (Integridad protegida).', false);
+  const handleCancelOperation = () => {
+    onToast('Anulación cancelada. La venta y el inventario permanecen sin cambios.', false);
     onClose();
   };
 
@@ -66,14 +66,11 @@ export const VoidSaleModal: React.FC<VoidSaleModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-bold text-base text-white">
-                  Protocolo de Anulación Transaccional de Venta
+                  Anulación Controlada de Venta
                 </h3>
-                <span className="text-[11px] font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2 py-0.5 rounded">
-                  RF-13 & TRD §3.7
-                </span>
               </div>
               <p className="text-xs text-slate-400">
-                Reversión atómica y restitución de inventario en motor MySQL InnoDB
+                Reversión del comprobante, reposición automática de inventario y ajuste en caja
               </p>
             </div>
           </div>
@@ -155,7 +152,7 @@ export const VoidSaleModal: React.FC<VoidSaleModalProps> = ({
             <div className="p-4 rounded-xl bg-amber-50/80 border border-amber-200 space-y-3">
               <div className="flex items-center gap-2 text-amber-900 font-bold text-sm">
                 <span className="material-symbols-outlined text-[20px] text-amber-600">payments</span>
-                <span>Precondición Obligatoria de Reembolso Contable (RF-13)</span>
+                <span>Confirmación Obligatoria de Reembolso</span>
               </div>
               <p className="text-xs text-amber-800 leading-relaxed">
                 Dado que esta venta se encuentra en estado <strong>PAGADA</strong>, la ejecución de la anulación registrará un <strong>asiento de egreso por devolución</strong> en la caja activa y anulará el comprobante fiscal correlativo.
@@ -207,7 +204,7 @@ export const VoidSaleModal: React.FC<VoidSaleModalProps> = ({
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-slate-800">
-                Motivo y Causal de Anulación (<code className="font-mono text-slate-600">motivo_anulacion VARCHAR(255)</code> obligatorio - mín. 10 caracteres)
+                Motivo y Causal de Anulación (obligatorio - mín. 10 caracteres)
               </label>
               <span
                 className={`text-[11px] font-bold ${
@@ -222,50 +219,12 @@ export const VoidSaleModal: React.FC<VoidSaleModalProps> = ({
               maxLength={255}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="Indique la justificación técnica, comercial o fiscal para la reversión de esta transacción..."
+              placeholder="Indique la justificación comercial o administrativa para la anulación de esta venta..."
               className="w-full text-xs p-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none text-slate-800"
             />
             <p className="text-[11px] text-slate-400">
-              Este argumento quedará grabado de forma permanente en la bitácora de auditoría inmutable del sistema.
+              Este argumento quedará registrado de forma permanente en el historial de ventas anuladas.
             </p>
-          </div>
-
-          {/* Didactic SQL PDO Preview */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between text-xs text-slate-500">
-              <span className="flex items-center gap-1 font-semibold text-slate-700">
-                <span className="material-symbols-outlined text-[16px] text-blue-600">terminal</span>
-                Simulación de Script Transaccional (Driver PDO MySQL InnoDB)
-              </span>
-              <span className="font-mono text-[11px] text-slate-400">App/Models/VentaModel.php</span>
-            </div>
-            <div className="bg-[#0b1329] text-slate-200 p-4 rounded-xl font-mono text-[11.5px] leading-relaxed overflow-x-auto shadow-inner select-all">
-              <span className="text-emerald-400 font-bold">START TRANSACTION;</span> <span className="text-slate-500">-- Nivel de aislamiento READ COMMITTED</span>
-              <br /><br />
-              <span className="text-slate-400">-- 1. Invalidación legal del comprobante emitido</span><br />
-              <span className="text-sky-300">UPDATE</span> comprobantes <span className="text-sky-300">SET</span> estado_comprobante = <span className="text-emerald-300">'ANULADO'</span> <span className="text-sky-300">WHERE</span> id_venta = <span className="text-amber-300">{sale.id}</span>;<br /><br />
-
-              <span className="text-slate-400">-- 2. Restitución atómica de existencias al almacén e inserción de Kardex</span><br />
-              {sale.items.map((it, idx) => (
-                <div key={idx}>
-                  <span className="text-sky-300">UPDATE</span> productos <span className="text-sky-300">SET</span> stock_actual = stock_actual + <span className="text-amber-300">{it.quantity}</span> <span className="text-sky-300">WHERE</span> codigo = <span className="text-emerald-300">'{it.productCode}'</span>;<br />
-                  <span className="text-sky-300">INSERT INTO</span> movimientos_inventario (id_producto, cantidad, tipo, motivo) <span className="text-sky-300">VALUES</span> (<span className="text-amber-300">{it.productId}</span>, <span className="text-amber-300">{it.quantity}</span>, <span className="text-emerald-300">'REPOSICION_ANULACION'</span>, <span className="text-emerald-300">'Anulación {sale.correlativeNumber}'</span>);
-                </div>
-              ))}
-              <br />
-
-              {isPaid && (
-                <>
-                  <span className="text-slate-400">-- 3. Asiento de egreso de caja física por reintegro</span><br />
-                  <span className="text-sky-300">INSERT INTO</span> movimientos_caja (id_caja, tipo, metodo, monto, concepto)<br />
-                  <span className="text-sky-300">VALUES</span> (<span className="text-amber-300">4</span>, <span className="text-emerald-300">'DEVOLUCION_ANULACION'</span>, <span className="text-emerald-300">'{refundMethod}'</span>, <span className="text-rose-400">-{sale.total}.00</span>, <span className="text-emerald-300">'Reversión {sale.correlativeNumber}'</span>);<br /><br />
-                </>
-              )}
-
-              <span className="text-slate-400">-- 4. Transición de estado de la venta y auditoría de cese</span><br />
-              <span className="text-sky-300">UPDATE</span> ventas <span className="text-sky-300">SET</span> estado = <span className="text-rose-400">'ANULADA'</span>, motivo_anulacion = <span className="text-emerald-300">'{reason.slice(0, 35)}...'</span>, fecha_anulacion = <span className="text-yellow-300">NOW()</span> <span className="text-sky-300">WHERE</span> id_venta = <span className="text-amber-300">{sale.id}</span>;<br /><br />
-              <span className="text-emerald-400 font-bold">COMMIT;</span> <span className="text-slate-500">-- Persistencia garantizada en InnoDB logs (WAL)</span>
-            </div>
           </div>
         </div>
 
@@ -273,25 +232,16 @@ export const VoidSaleModal: React.FC<VoidSaleModalProps> = ({
         <div className="bg-slate-50 border-t border-slate-200 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-            <span>Transacción Lista para Despacho PDO</span>
+            <span>Listo para procesar anulación</span>
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             <button
-              onClick={onClose}
+              onClick={handleCancelOperation}
               disabled={isExecuting}
               className="px-4 py-2 bg-white text-slate-700 font-semibold text-xs rounded-lg border border-slate-200 hover:bg-slate-100 transition-colors cursor-pointer"
             >
               Cancelar / Descartar
-            </button>
-
-            <button
-              onClick={handleSimulateRollback}
-              disabled={isExecuting}
-              className="px-4 py-2 bg-slate-200 text-slate-800 font-semibold text-xs rounded-lg hover:bg-slate-300 transition-colors flex items-center gap-1 cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-[16px]">undo</span>
-              <span>Simular Rollback</span>
             </button>
 
             <button
@@ -306,12 +256,12 @@ export const VoidSaleModal: React.FC<VoidSaleModalProps> = ({
               {isExecuting ? (
                 <>
                   <span className="material-symbols-outlined animate-spin text-[16px]">autorenew</span>
-                  <span>Ejecutando COMMIT PDO...</span>
+                  <span>Procesando anulación...</span>
                 </>
               ) : (
                 <>
                   <span className="material-symbols-outlined text-[16px]">warning</span>
-                  <span>Ejecutar Reversión Atómica (PDO Commit)</span>
+                  <span>Confirmar Anulación de Venta</span>
                 </>
               )}
             </button>

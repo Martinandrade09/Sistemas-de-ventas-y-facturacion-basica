@@ -52,7 +52,7 @@ export const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
     setTimeout(() => {
       setIsSubmitting(false);
       onAddStock(productId, quantity, docRef, reason, movementType);
-      onToast(`+${quantity} unidades agregadas a ${activeProduct.code} mediante transacción ACID PDO.`, false);
+      onToast(`+${quantity} unidades agregadas a ${activeProduct.code} en el inventario.`, false);
       onClose();
     }, 700);
   };
@@ -71,12 +71,9 @@ export const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
                 <h3 className="font-bold text-base text-white">
                   Registrar Entrada / Ajuste de Stock
                 </h3>
-                <span className="text-[11px] font-mono font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded">
-                  RF-06
-                </span>
               </div>
               <p className="text-xs text-slate-400">
-                Regla de Integridad Contable: Asiento obligatorio en Kardex con trazabilidad documental
+                Control de Inventario: Registro formal en Kardex con trazabilidad documental
               </p>
             </div>
           </div>
@@ -90,13 +87,13 @@ export const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-slate-800">
-          {/* RF-06 Rule Banner */}
+          {/* Stock Rule Banner */}
           <div className="p-3.5 rounded-xl bg-blue-50/80 border border-blue-200 text-xs text-blue-900 flex items-start gap-2.5">
             <span className="material-symbols-outlined text-blue-600 text-[20px] shrink-0 mt-0.5">
               shield
             </span>
             <p>
-              <strong>Principio de Inmutabilidad Directa:</strong> El stock no puede sobreescribirse libremente. Todo ingreso afecta la tabla <code className="font-mono font-bold">movimientos_inventario</code> y actualiza atómicamente <code className="font-mono font-bold">productos.stock_actual</code> mediante PDO transaction.
+              <strong>Control de Existencias:</strong> El stock no se sobreescribe directamente; todo ingreso genera un registro en el historial Kardex y actualiza automáticamente las unidades disponibles del producto.
             </p>
           </div>
 
@@ -253,29 +250,13 @@ export const StockAdjustmentModal: React.FC<StockAdjustmentModalProps> = ({
             />
           </div>
 
-          {/* Auditor RBAC info */}
+          {/* Responsible info */}
           <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
-            <span className="text-slate-500">Auditor Responsable RBAC:</span>
+            <span className="text-slate-500">Responsable del Registro:</span>
             <div className="flex items-center gap-1.5 font-bold text-slate-800">
               <span className="material-symbols-outlined text-[16px] text-blue-600">verified_user</span>
               <span>{currentUser.name} ({currentUser.roleLabel})</span>
             </div>
-          </div>
-
-          {/* SQL Preview Box */}
-          <div className="space-y-1">
-            <span className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
-              <span className="material-symbols-outlined text-[14px] text-blue-600">terminal</span>
-              Sentencia SQL Transaccional a Ejecutar (PDO InnoDB):
-            </span>
-            <pre className="bg-[#0b1329] text-sky-200 p-3 rounded-lg font-mono text-[11px] leading-relaxed overflow-x-auto">
-START TRANSACTION;
-INSERT INTO movimientos_inventario (id_producto, cantidad, tipo, documento_ref, motivo, id_usuario)
-VALUES ({activeProduct?.id || 1}, {quantity}, '{movementType}', '{docRef}', '{reason}', 1);
-
-UPDATE productos SET stock_actual = stock_actual + {quantity} WHERE id = {activeProduct?.id || 1};
-COMMIT;
-            </pre>
           </div>
 
           {/* Submit Buttons */}
@@ -295,7 +276,7 @@ COMMIT;
               {isSubmitting ? (
                 <>
                   <span className="material-symbols-outlined animate-spin text-[16px]">autorenew</span>
-                  <span>Ejecutando COMMIT PDO...</span>
+                  <span>Guardando movimiento...</span>
                 </>
               ) : (
                 <>

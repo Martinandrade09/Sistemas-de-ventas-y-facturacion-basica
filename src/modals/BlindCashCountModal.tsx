@@ -95,9 +95,6 @@ export const BlindCashCountModal: React.FC<BlindCashCountModalProps> = ({
                 <h3 className="font-bold text-base text-white">
                   Arqueo Físico de Gaveta (Control de Cuadre Ciego)
                 </h3>
-                <span className="text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded">
-                  RF-10 / RF-11
-                </span>
               </div>
               <p className="text-xs text-slate-400">
                 {session.registerNumber} · {session.turnName} · Cajero: {session.cashier}
@@ -120,7 +117,7 @@ export const BlindCashCountModal: React.FC<BlindCashCountModalProps> = ({
               visibility_off
             </span>
             <div>
-              <strong className="text-slate-900">Principio de Arqueo Ciego (RF-10):</strong> Para prevenir sesgos y manipulación de efectivo, el cajero debe contar y declarar físicamente cada denominación de billetes y monedas sin conocer a priori el saldo teórico liquidado por el sistema.
+              <strong className="text-slate-900">Principio de Arqueo Ciego:</strong> Para prevenir sesgos en el conteo de efectivo, el cajero declara físicamente cada denominación de billetes y monedas antes de compararlo con el saldo esperado del turno.
             </div>
           </div>
 

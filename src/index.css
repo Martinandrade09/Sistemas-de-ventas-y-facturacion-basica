@@ -77,24 +77,83 @@ h1, h2, h3, h4, h5, h6, .font-display, .font-heading {
   line-height: 1;
 }
 
-/* Print styles */
+/* Print styles optimized for 80mm thermal POS printers */
 @media print {
+  @page {
+    size: 80mm auto;
+    margin: 2mm;
+  }
+
+  html,
+  body {
+    width: 80mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
   body * {
     visibility: hidden;
   }
-  #printable-voucher, #printable-voucher * {
+
+  #printable-voucher,
+  #printable-voucher * {
     visibility: visible;
   }
+
   #printable-voucher {
     position: absolute;
     left: 0;
     top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    box-shadow: none;
-    border-radius: 0;
+    width: 76mm !important;
+    max-width: 80mm !important;
+    margin: 0 !important;
+    padding: 3mm 2mm !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 10px !important;
+    line-height: 1.3 !important;
   }
+
+  #printable-voucher .thermal-stack {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+    gap: 6px !important;
+  }
+
+  #printable-voucher .thermal-grid-stack {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  #printable-voucher .thermal-right-reset {
+    text-align: left !important;
+    width: 100% !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  #printable-voucher table {
+    width: 100% !important;
+    font-size: 9px !important;
+    border-collapse: collapse !important;
+  }
+
+  #printable-voucher th,
+  #printable-voucher td {
+    padding: 3px 2px !important;
+  }
+
+  #printable-voucher .thermal-watermark-text {
+    font-size: 38px !important;
+  }
+
   .no-print {
     display: none !important;
   }

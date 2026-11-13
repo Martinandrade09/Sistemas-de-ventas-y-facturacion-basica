@@ -180,9 +180,6 @@ export const PosView: React.FC<PosViewProps> = ({
               <h2 className="text-sm font-bold text-slate-900">
                 Punto de Venta — Registro de Ventas Pendientes
               </h2>
-              <span className="font-mono text-[11px] font-bold bg-blue-100 text-blue-800 px-2 py-0.2 rounded">
-                RF-07 / RF-08
-              </span>
             </div>
             <p className="text-xs text-slate-600">
               Módulo de Venta: La venta se creará en estado <strong>PENDIENTE</strong> sin descontar inventario hasta la confirmación de pago en Caja.
@@ -327,9 +324,9 @@ export const PosView: React.FC<PosViewProps> = ({
                 </span>
                 <h3 className="font-bold text-sm text-slate-900">Catálogo de Productos para la Venta</h3>
               </div>
-              <span className="text-[11px] text-slate-400 font-mono flex items-center gap-1">
-                <span className="material-symbols-outlined text-[14px]">database</span>
-                Stock en Memoria (PDO)
+              <span className="text-[11px] text-slate-400 font-medium flex items-center gap-1">
+                <span className="material-symbols-outlined text-[14px]">inventory_2</span>
+                Stock en tiempo real
               </span>
             </div>
 
@@ -554,7 +551,7 @@ export const PosView: React.FC<PosViewProps> = ({
 
               <div className="text-[11px] text-slate-500 flex items-center gap-1 pt-1">
                 <span className="material-symbols-outlined text-[14px] text-emerald-600">verified</span>
-                <span>Precios verificados contra base de datos por V...</span>
+                <span>Precios e impuestos verificados automáticamente</span>
               </div>
             </div>
 
@@ -593,14 +590,14 @@ export const PosView: React.FC<PosViewProps> = ({
               </div>
             </div>
 
-            {/* Academic RF-08 Callout */}
+            {/* Operational Note */}
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-600 space-y-1">
               <div className="flex items-center gap-1 text-slate-800 font-bold">
-                <span className="material-symbols-outlined text-[15px] text-blue-600">terminal</span>
-                <span>Requerimiento Funcional RF-08</span>
+                <span className="material-symbols-outlined text-[15px] text-blue-600">info</span>
+                <span>Flujo de Facturación</span>
               </div>
               <p className="leading-relaxed">
-                Cálculo de totales en tiempo real en cliente y revalidación obligatoria en servidor antes del commit de persistencia transaccional (ACID). El inventario se reserva únicamente con estado <strong>PAGADA</strong>.
+                Los totales e impuestos se calculan en tiempo real. El inventario se descuenta únicamente al confirmar el cobro en Caja.
               </p>
             </div>
           </div>

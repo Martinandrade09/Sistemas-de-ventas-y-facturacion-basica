@@ -1,4 +1,14 @@
-import React from 'react';
+import React, { useMemo, useEffect, useRef, useState } from 'react';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Cell,
+} from 'recharts';
 import { Sale, Product, CashSession, User } from '../types';
 
 interface DashboardViewProps {
@@ -24,7 +34,77 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onOpenStockModal,
   onToast,
 }) => {
-  const criticalProducts = products.filter((p) => p.currentStock <= p.minStock);
+  const CRITICAL_THRESHOLD = 5;
+
+  const criticalProducts = useMemo(
+    () =>
+      products
+        .filter((p) => p.currentStock < CRITICAL_THRESHOLD)
+        .sort((a, b) => a.currentStock - b.currentStock),
+    [products]
+  );
+
+  const [alertDismissed, setAlertDismissed] = useState(false);
+  const hasMountedToastRef = useRef(false);
+  const prevStockMapRef = useRef<Record<number, number>>({});
+
+  // Notificación automática mediante Toast al detectar productos por debajo de 5 unidades
+  useEffect(() => {
+    const currentMap: Record<number, number> = {};
+    products.forEach((p) => {
+      currentMap[p.id] = p.currentStock;
+    });
+
+    if (!hasMountedToastRef.current) {
+      hasMountedToastRef.current = true;
+      prevStockMapRef.current = currentMap;
+
+      if (criticalProducts.length === 1) {
+        const p = criticalProducts[0];
+        onToast(
+          `Alerta crítica de inventario: ${p.name} (${p.code}) tiene solo ${p.currentStock} unidad(es) (< 5).`,
+          true
+        );
+      } else if (criticalProducts.length > 1) {
+        const preview = criticalProducts
+          .slice(0, 3)
+          .map((p) => `${p.code}: ${p.currentStock} unid.`)
+          .join(' · ');
+        onToast(
+          `Alerta crítica (< 5 unid.): ${criticalProducts.length} productos en nivel crítico (${preview}).`,
+          true
+        );
+      }
+      return;
+    }
+
+    const newlyCritical = products.filter((p) => {
+      const prev = prevStockMapRef.current[p.id];
+      return (
+        p.currentStock < CRITICAL_THRESHOLD &&
+        prev !== undefined &&
+        (prev >= CRITICAL_THRESHOLD || p.currentStock < prev)
+      );
+    });
+
+    prevStockMapRef.current = currentMap;
+
+    if (newlyCritical.length > 0) {
+      setAlertDismissed(false);
+      const first = newlyCritical[0];
+      onToast(
+        `¡Stock crítico alcanzado! ${first.name} (${first.code}) bajó a ${first.currentStock} unidad(es) (< 5).`,
+        true
+      );
+    }
+  }, [products, criticalProducts, onToast]);
+
+  const handleNotifyProductToast = (prod: Product) => {
+    onToast(
+      `Alerta de inventario crítico: ${prod.name} (${prod.code}) dispone únicamente de ${prod.currentStock} unidad(es) en bodega (< 5).`,
+      true
+    );
+  };
 
   const totalPaidSales = sales
     .filter((s) => s.status === 'PAGADA')
@@ -33,18 +113,31 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const paidCount = sales.filter((s) => s.status === 'PAGADA').length;
   const pendingCount = sales.filter((s) => s.status === 'PENDIENTE').length;
 
+  // Datos de ventas de los últimos 7 días (último día sincronizado en tiempo real con las ventas pagadas de hoy)
+  const weeklySalesData = useMemo(
+    () => [
+      { day: 'Vie', dateLabel: '08 Nov', total: 890000, transactions: 8 },
+      { day: 'Sáb', dateLabel: '09 Nov', total: 1340000, transactions: 12 },
+      { day: 'Dom', dateLabel: '10 Nov', total: 620000, transactions: 5 },
+      { day: 'Lun', dateLabel: '11 Nov', total: 1120000, transactions: 9 },
+      { day: 'Mar', dateLabel: '12 Nov', total: 980000, transactions: 8 },
+      { day: 'Mié', dateLabel: '13 Nov', total: 1450000, transactions: 13 },
+      { day: 'Jue (Hoy)', dateLabel: '14 Nov', total: totalPaidSales, transactions: paidCount, isToday: true },
+    ],
+    [totalPaidSales, paidCount]
+  );
+
+  const weeklyTotal = weeklySalesData.reduce((acc, item) => acc + item.total, 0);
+
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6 animate-in fade-in duration-150">
-      {/* 1. Academic Header Banner & Welcome */}
+      {/* 1. Welcome Header Banner */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
               <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
-              ENTORNO DIDÁCTICO V2.4 · Transaccionalidad ACID Activa
-            </span>
-            <span className="text-xs font-mono bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full font-semibold">
-              PDO MySQL InnoDB
+              Operación Comercial Activa
             </span>
           </div>
 
@@ -52,7 +145,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             Bienvenido al Sistema de Gestión Comercial
           </h1>
           <p className="text-sm text-slate-500 max-w-3xl leading-relaxed">
-            Proyecto Académico Formativo · Arquitectura MVC Monolítica en PHP 8 & MySQL InnoDB con Control Transaccional Seguro y Separación de Responsabilidades.
+            Control integral de facturación, flujo de caja, existencias en inventario y reportes de gestión comercial.
           </p>
         </div>
 
@@ -61,7 +154,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
               Periodo Fiscal Activo
             </span>
-            <span className="text-xs font-bold text-slate-700">Semestre II - 2024</span>
+            <span className="text-xs font-bold text-slate-700">Periodo 2024 - II</span>
           </div>
           <button
             onClick={() => onNavigate('punto-de-venta')}
@@ -72,6 +165,87 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </button>
         </div>
       </div>
+
+      {/* 1.5 Sistema de Alerta Visual Crítica (< 5 unidades) */}
+      {criticalProducts.length > 0 && !alertDismissed && (
+        <div
+          role="alert"
+          className="bg-rose-50 border border-rose-200 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4 animate-in fade-in duration-200"
+        >
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+              <span className="material-symbols-outlined text-[22px] animate-pulse">
+                notification_important
+              </span>
+            </div>
+            <div className="space-y-1.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-rose-800">
+                  Alerta Visual de Inventario Crítico
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-600 text-white font-mono">
+                  Stock &lt; 5 unidades ({criticalProducts.length})
+                </span>
+              </div>
+              <p className="text-xs text-rose-900/90 leading-relaxed">
+                Los siguientes productos se encuentran por debajo del umbral operativo de <strong>5 unidades</strong> y requieren reposición inmediata en inventario:
+              </p>
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                {criticalProducts.map((prod) => (
+                  <button
+                    key={prod.id}
+                    type="button"
+                    onClick={() => onOpenStockModal(prod.id)}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white hover:bg-rose-100 border border-rose-200 text-xs font-semibold text-rose-900 transition-colors cursor-pointer shadow-2xs"
+                    title={`Click para reabastecer ${prod.name}`}
+                  >
+                    <span className="w-2 h-2 rounded-full bg-rose-600 animate-ping"></span>
+                    <span className="font-mono font-bold text-rose-700">{prod.code}</span>
+                    <span className="text-slate-700 truncate max-w-[160px]">{prod.name}</span>
+                    <span className="px-1.5 py-0.2 rounded bg-rose-100 text-rose-800 font-mono font-bold text-[11px]">
+                      {prod.currentStock} unid.
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 self-end lg:self-center shrink-0">
+            <button
+              type="button"
+              onClick={() =>
+                onToast(
+                  `Alerta crítica (< 5 unid.): ${criticalProducts
+                    .map((p) => `${p.code} (${p.currentStock} unid.)`)
+                    .join(', ')}.`,
+                  true
+                )
+              }
+              className="px-3 py-2 rounded-xl bg-white hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[16px]">notifications_active</span>
+              <span>Notificar Toast</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onOpenStockModal(criticalProducts[0].id)}
+              className="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[16px]">add_box</span>
+              <span>Abastecer Urgente</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setAlertDismissed(true)}
+              className="p-1.5 rounded-lg text-rose-400 hover:text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer"
+              title="Ocultar banner temporalmente"
+            >
+              <span className="material-symbols-outlined text-[18px]">close</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 2. Top Metric KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -154,24 +328,48 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <span className="text-2xl font-extrabold text-slate-900">100%</span>
               <span className="text-xs font-bold text-emerald-600">Sin Negativos</span>
             </div>
-            <p className="text-xs text-slate-500 mt-1 font-mono">
-              Restricción MySQL <strong className="text-slate-700">stock &gt;= 0</strong> activa.
+            <p className="text-xs text-slate-500 mt-1">
+              Control automático de existencias positivas.
             </p>
           </div>
           <div
-            onClick={() => onNavigate('catalogo-inventario')}
-            className="flex items-center gap-1.5 text-xs text-amber-700 font-bold bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-200/60 mt-3 cursor-pointer hover:bg-amber-100 transition-colors"
+            onClick={() => {
+              if (criticalProducts.length > 0) {
+                onToast(
+                  `${criticalProducts.length} producto(s) por debajo de 5 unidades: ${criticalProducts
+                    .map((p) => `${p.code} (${p.currentStock})`)
+                    .join(', ')}.`,
+                  true
+                );
+              }
+              onNavigate('catalogo-inventario');
+            }}
+            className={`flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-lg border mt-3 cursor-pointer transition-colors ${
+              criticalProducts.length > 0
+                ? 'text-rose-700 bg-rose-50 border-rose-200/80 hover:bg-rose-100'
+                : 'text-emerald-700 bg-emerald-50 border-emerald-200/80 hover:bg-emerald-100'
+            }`}
           >
-            <span className="material-symbols-outlined text-[16px] text-amber-600">warning</span>
-            <span>{criticalProducts.length} productos en umbral crítico</span>
+            <span
+              className={`material-symbols-outlined text-[16px] ${
+                criticalProducts.length > 0 ? 'text-rose-600' : 'text-emerald-600'
+              }`}
+            >
+              {criticalProducts.length > 0 ? 'warning' : 'verified'}
+            </span>
+            <span>
+              {criticalProducts.length > 0
+                ? `${criticalProducts.length} productos < 5 unid. (Crítico)`
+                : 'Stock saludable (>= 5 unid.)'}
+            </span>
           </div>
         </div>
 
-        {/* Card 4: Sesión RBAC Activa */}
+        {/* Card 4: Usuario Activo */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Sesión RBAC Activa
+              Usuario Activo
             </span>
             <div className="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center">
               <span className="material-symbols-outlined text-[20px]">admin_panel_settings</span>
@@ -186,12 +384,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </p>
             <div className="flex items-center gap-1.5 text-[11px] text-blue-600 font-semibold mt-1">
               <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-              <span>Permisos Globales PDO Activos</span>
+              <span>Sesión operativa autorizada</span>
             </div>
           </div>
           <div className="flex items-center justify-between text-[11px] text-slate-400 pt-3 border-t border-slate-100 font-mono">
-            <span>Nivel: {currentUser.code}</span>
-            <span>PHP 8.2</span>
+            <span>Código: {currentUser.code}</span>
+            <span>Turno Activo</span>
           </div>
         </div>
       </div>
@@ -212,9 +410,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   Filtrando: Hoy
                 </span>
                 <button
-                  onClick={() => onToast('Registros actualizados desde MySQL InnoDB.', false)}
+                  onClick={() => onToast('Listado de ventas actualizado.', false)}
                   className="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
-                  title="Refrescar transacciones"
+                  title="Actualizar listado de ventas"
                 >
                   <span className="material-symbols-outlined text-[18px]">sync</span>
                 </button>
@@ -295,9 +493,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             <div className="p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
-              <span className="flex items-center gap-1 font-mono text-[11px]">
+              <span className="flex items-center gap-1.5 text-[11px]">
                 <span className="material-symbols-outlined text-[15px] text-blue-600">verified_user</span>
-                Filas protegidas mediante Clave Foránea con <strong>ON DELETE RESTRICT</strong>
+                Historial de facturación actualizado en tiempo real
               </span>
               <button
                 onClick={() => onNavigate('reportes-gestion')}
@@ -366,6 +564,111 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             </div>
           </div>
+
+          {/* Gráfico de Barras Recharts: Total de Ventas por Día (Última Semana) */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 className="font-bold text-base text-slate-900">
+                  Total de Ventas por Día (Última Semana)
+                </h3>
+                <span className="text-xs text-slate-500">
+                  Consolidado diario de facturación pagada (COP) · Últimos 7 días
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold text-slate-800 bg-slate-100 px-2.5 py-1 rounded-lg">
+                  Acumulado 7d: ${weeklyTotal.toLocaleString('es-CO')} COP
+                </span>
+              </div>
+            </div>
+
+            <div className="w-full h-64 bg-slate-50/50 rounded-xl p-3 sm:p-4 border border-slate-100">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={weeklySalesData}
+                  margin={{ top: 10, right: 12, left: 4, bottom: 4 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis
+                    dataKey="day"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#64748b', fontSize: 11, fontWeight: 600 }}
+                    dy={6}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#64748b', fontSize: 11 }}
+                    tickFormatter={(value: number) =>
+                      value >= 1000000
+                        ? `$${(value / 1000000).toFixed(1)}M`
+                        : `$${Math.round(value / 1000)}k`
+                    }
+                    width={56}
+                  />
+                  <Tooltip
+                    cursor={{ fill: '#eff6ff', radius: 6 }}
+                    content={({ active, payload }) => {
+                      if (!active || !payload || !payload.length) return null;
+                      const data = payload[0].payload as {
+                        day: string;
+                        dateLabel: string;
+                        total: number;
+                        transactions: number;
+                        isToday?: boolean;
+                      };
+                      return (
+                        <div className="bg-slate-900 text-white px-3.5 py-2.5 rounded-xl shadow-xl border border-slate-700 text-xs space-y-1">
+                          <div className="flex items-center justify-between gap-4">
+                            <span className="font-bold text-slate-100">
+                              {data.day} · {data.dateLabel}
+                            </span>
+                            {data.isToday && (
+                              <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">
+                                En vivo
+                              </span>
+                            )}
+                          </div>
+                          <div className="font-mono font-extrabold text-sm text-blue-400">
+                            ${data.total.toLocaleString('es-CO')} COP
+                          </div>
+                          <div className="text-[11px] text-slate-400">
+                            {data.transactions} ventas pagadas registradas
+                          </div>
+                        </div>
+                      );
+                    }}
+                  />
+                  <Bar dataKey="total" radius={[8, 8, 0, 0]} maxBarSize={44}>
+                    {weeklySalesData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.isToday ? '#0f172a' : '#2563eb'}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500 pt-1">
+              <div className="flex items-center gap-4">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-blue-600 inline-block"></span>
+                  Días anteriores (histórico cerrado)
+                </span>
+                <span className="flex items-center gap-1.5 font-semibold text-slate-700">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-slate-900 inline-block"></span>
+                  Hoy (sincronizado con transacciones PAGADAS)
+                </span>
+              </div>
+              <span className="text-slate-400">
+                Consolidado de ventas pagadas de los últimos 7 días
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Right Column (4 cols): Módulos por Rol & Stock Crítico */}
@@ -373,13 +676,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {/* Módulos Operativos por Rol */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-sm text-slate-900">Módulos Operativos por Rol</h3>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
-                Simulación RBAC
-              </span>
+              <h3 className="font-bold text-sm text-slate-900">Accesos Directos</h3>
             </div>
             <p className="text-xs text-slate-500">
-              Acceso directo a las rutas controladas según la responsabilidad académica del usuario en la sesión:
+              Acceso rápido a los módulos operativos principales del sistema:
             </p>
 
             <div className="space-y-2.5">
@@ -448,124 +748,96 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
 
-          {/* Alerta de Stock Crítico */}
+          {/* Alerta de Stock Crítico (< 5 unidades) */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3.5">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-1.5 text-rose-600 font-bold text-sm">
                 <span className="material-symbols-outlined text-[20px]">warning</span>
                 <span>Alerta de Stock Crítico</span>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 font-mono">
-                {criticalProducts.length} Ítems
-              </span>
+              <div className="flex items-center gap-1.5">
+                {criticalProducts.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => handleNotifyProductToast(criticalProducts[0])}
+                    className="p-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors cursor-pointer"
+                    title="Notificar alerta mediante Toast"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">notifications_active</span>
+                  </button>
+                )}
+                <span
+                  className={`px-2 py-0.5 rounded-full text-xs font-bold font-mono ${
+                    criticalProducts.length > 0
+                      ? 'bg-rose-100 text-rose-800'
+                      : 'bg-emerald-100 text-emerald-800'
+                  }`}
+                >
+                  {criticalProducts.length} Ítems &lt; 5
+                </span>
+              </div>
             </div>
             <p className="text-xs text-slate-500">
-              Productos que han alcanzado el umbral de seguridad y requieren reorden inmediata:
+              Productos por debajo del nivel crítico (<strong>&lt; 5 unidades</strong>) que requieren reorden inmediata:
             </p>
 
-            <div className="space-y-2.5">
-              {criticalProducts.map((prod) => (
-                <div
-                  key={prod.id}
-                  className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-8 h-8 rounded-lg bg-rose-50 text-rose-700 font-mono font-bold text-xs flex items-center justify-center shrink-0 border border-rose-200">
-                      0{prod.currentStock}
-                    </span>
-                    <div className="min-w-0">
-                      <h4 className="text-xs font-bold text-slate-900 truncate">{prod.name}</h4>
-                      <span className="text-[11px] text-slate-500 block">
-                        SKU: {prod.code} · Mínimo: {prod.minStock} unid.
-                      </span>
+            {criticalProducts.length === 0 ? (
+              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2 font-semibold">
+                <span className="material-symbols-outlined text-[18px] text-emerald-600">check_circle</span>
+                <span>Todos los productos superan el umbral mínimo de 5 unidades.</span>
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {criticalProducts.map((prod) => {
+                  const pct = Math.max(8, Math.min(100, Math.round((prod.currentStock / CRITICAL_THRESHOLD) * 100)));
+                  return (
+                    <div
+                      key={prod.id}
+                      className="p-3 rounded-xl bg-rose-50/40 border border-rose-200/80 flex flex-col gap-2"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className="w-8 h-8 rounded-lg bg-rose-100 text-rose-800 font-mono font-bold text-xs flex items-center justify-center shrink-0 border border-rose-300">
+                            0{prod.currentStock}
+                          </span>
+                          <div className="min-w-0">
+                            <h4 className="text-xs font-bold text-slate-900 truncate">{prod.name}</h4>
+                            <span className="text-[11px] text-slate-500 block">
+                              SKU: {prod.code} · Crítico (&lt; 5 unid.)
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => handleNotifyProductToast(prod)}
+                            className="p-1.5 rounded-lg bg-white hover:bg-rose-100 text-rose-600 border border-rose-200 transition-colors cursor-pointer"
+                            title={`Enviar alerta toast para ${prod.code}`}
+                          >
+                            <span className="material-symbols-outlined text-[15px]">campaign</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onOpenStockModal(prod.id)}
+                            className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold transition-colors shadow-sm cursor-pointer"
+                          >
+                            Abastecer
+                          </button>
+                        </div>
+                      </div>
+                      <div className="w-full h-1.5 bg-rose-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-rose-600 rounded-full transition-all duration-300"
+                          style={{ width: `${pct}%` }}
+                        ></div>
+                      </div>
                     </div>
-                  </div>
-                  <button
-                    onClick={() => onOpenStockModal(prod.id)}
-                    className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold transition-colors shrink-0 shadow-sm cursor-pointer"
-                  >
-                    Abastecer
-                  </button>
-                </div>
-              ))}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
-          {/* Pedagogical Software Engineering Flow (ACID) */}
-          <div className="bg-slate-950 text-slate-100 rounded-2xl p-5 shadow-sm space-y-3 border border-slate-800">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-mono text-emerald-400 font-bold uppercase tracking-wider flex items-center gap-1">
-                <span className="material-symbols-outlined text-[15px]">code</span>
-                Flujo Formativo Transaccional (ACID)
-              </span>
-              <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-400 font-mono font-bold">
-                InnoDB Engine
-              </span>
-            </div>
-
-            <p className="text-xs text-slate-400 leading-relaxed">
-              El sistema desacopla intencionalmente el registro comercial del cobro en metálico:
-            </p>
-
-            <ol className="space-y-2 text-xs text-slate-300">
-              <li className="flex items-start gap-2">
-                <span className="w-4 h-4 rounded-full bg-slate-800 text-slate-300 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
-                  1
-                </span>
-                <span>
-                  <strong>Vendedor</strong> crea venta preliminar en estado <code className="text-amber-300">PENDIENTE</code>.
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="w-4 h-4 rounded-full bg-slate-800 text-slate-300 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
-                  2
-                </span>
-                <span>
-                  <strong>Cajero</strong> valida saldo y confirma el cobro solo si su Caja está Abierta.
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="w-4 h-4 rounded-full bg-slate-800 text-slate-300 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
-                  3
-                </span>
-                <span>
-                  Transacción <code className="text-emerald-400 font-mono">PDO::beginTransaction()</code> descuenta el stock atómicamente.
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="w-4 h-4 rounded-full bg-slate-800 text-slate-300 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
-                  4
-                </span>
-                <span>Comprobante de factura inmutable generado para impresión fiscal.</span>
-              </li>
-            </ol>
-
-            <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 font-mono">
-              <span>Patrón: Separación de Responsabilidades</span>
-              <span className="text-emerald-400">InnoDB WAL Log OK</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 4. Bottom Console Bar */}
-      <div className="p-3.5 bg-white rounded-xl border border-slate-200 text-xs text-slate-600 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
-        <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-[18px] text-blue-600">terminal</span>
-          <span>
-            Consola Académica: Ejecutando consultas preparadas PDO en modo estricto{' '}
-            <code className="font-mono font-bold text-slate-800">ATTR_ERRMODE_EXCEPTION</code>
-          </span>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <span className="text-slate-400">Última sincronización: Hace 2 min</span>
-          <button
-            onClick={() => onToast('Tablero de control sincronizado con éxito.', false)}
-            className="text-blue-600 hover:text-blue-800 font-bold cursor-pointer"
-          >
-            Refrescar Tablero
-          </button>
         </div>
       </div>
     </div>

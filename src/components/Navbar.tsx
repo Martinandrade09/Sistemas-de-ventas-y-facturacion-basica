@@ -42,7 +42,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               Sistema de Ventas & Facturación
             </span>
             <span className="text-xs text-slate-500 font-medium">
-              Entorno Académico - PHP Nativo / MVC
+              Gestión Comercial e Inventario
             </span>
           </div>
         </div>
@@ -74,7 +74,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => setShowUserDropdown(!showUserDropdown)}
               className="flex items-center gap-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl transition-colors cursor-pointer text-left"
-              title="Haz clic para alternar de rol RBAC (Simulación)"
+              title="Cambiar usuario activo"
             >
               <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center text-white text-sm font-bold shrink-0">
                 <span className="material-symbols-outlined text-[18px]">person</span>
@@ -98,7 +98,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                 <div className="px-3 py-1.5 border-b border-slate-100">
                   <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
-                    Cambiar Perfil RBAC (Simulación Académica)
+                    Cambiar Perfil de Usuario
                   </span>
                 </div>
                 {users.map((user) => (
@@ -128,7 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Reset / Exit Session */}
           <button
             onClick={() => {
-              if (window.confirm('¿Reiniciar sesión de trabajo pedagógica?')) {
+              if (window.confirm('¿Reiniciar sesión de trabajo actual?')) {
                 setActiveTab('panel-general');
               }
             }}
