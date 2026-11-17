@@ -8,3 +8,12 @@ coverage/
 !.env.example
 backend/.env*
 !backend/.env.example
+
+# Archivos locales de prueba — nunca subir al repositorio
+*.local
+*.local.txt
+*.local.json
+.test_credentials.local
+backend/scripts/detectar_password.php
+backend/scripts/pw_temp_*.local.txt
+backend/scripts/hashes_nuevos.local.json

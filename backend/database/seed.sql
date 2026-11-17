@@ -11,15 +11,17 @@ USE sistema_ventas;
 SET NAMES utf8mb4;
 START TRANSACTION;
 
--- 1. Roles
-INSERT INTO roles (nombre) VALUES ('Administrador') ON DUPLICATE KEY UPDATE id_rol = id_rol;
-INSERT INTO roles (nombre) VALUES ('Cajero') ON DUPLICATE KEY UPDATE id_rol = id_rol;
-INSERT INTO roles (nombre) VALUES ('Vendedor') ON DUPLICATE KEY UPDATE id_rol = id_rol;
+-- 1. Roles (en mayúsculas, según esquema aprobado)
+INSERT INTO roles (nombre) VALUES ('ADMINISTRADOR') ON DUPLICATE KEY UPDATE id_rol = id_rol;
+INSERT INTO roles (nombre) VALUES ('CAJERO') ON DUPLICATE KEY UPDATE id_rol = id_rol;
+INSERT INTO roles (nombre) VALUES ('VENDEDOR') ON DUPLICATE KEY UPDATE id_rol = id_rol;
 
--- 2. Usuarios (hashes Bcrypt generados con PHP password_hash)
-INSERT INTO usuarios (usuario,password_hash,id_rol,estado) SELECT 'admin_test', '$2y$12$m/ayfqmWoAqlPQekRfsJD.882MVOYEZ8qIs1yBQFEzFACEKgT96Yi', r.id_rol, 'ACTIVO' FROM roles r WHERE r.nombre='Administrador' ON DUPLICATE KEY UPDATE id_usuario = id_usuario;
-INSERT INTO usuarios (usuario,password_hash,id_rol,estado) SELECT 'cajero_test', '$2y$12$8WxoyK5f1cp6WD23M0kIiO9LyerN2i2nb/9LKZ6wVRes8ILZE3.FS', r.id_rol, 'ACTIVO' FROM roles r WHERE r.nombre='Cajero' ON DUPLICATE KEY UPDATE id_usuario = id_usuario;
-INSERT INTO usuarios (usuario,password_hash,id_rol,estado) SELECT 'vendedor_test', '$2y$12$h0JSFIyQ8ypVCP4pKpdOeeorXxZfY.0v7h6BpQtOQjFuiOAjFnPlC', r.id_rol, 'ACTIVO' FROM roles r WHERE r.nombre='Vendedor' ON DUPLICATE KEY UPDATE id_usuario = id_usuario;
+-- 2. Usuarios (hashes Bcrypt cost=12, regenerados con PHP password_hash en Sprint 2)
+-- Contraseñas de prueba guardadas en .test_credentials.local (gitignored)
+-- Generado con: backend/scripts/regenerar_hashes_seed.php
+INSERT INTO usuarios (usuario,password_hash,id_rol,estado) SELECT 'admin_test', '$2y$12$8VB8UlhjkzmdItEYHrnj/eYSfWXOKn37nSkQG9svGOCm9FRkgpJCy', r.id_rol, 'ACTIVO' FROM roles r WHERE r.nombre='ADMINISTRADOR' ON DUPLICATE KEY UPDATE password_hash='$2y$12$8VB8UlhjkzmdItEYHrnj/eYSfWXOKn37nSkQG9svGOCm9FRkgpJCy';
+INSERT INTO usuarios (usuario,password_hash,id_rol,estado) SELECT 'cajero_test', '$2y$12$51ZavYc27XqZMpGsGLPwq.raI2gM1OkeOt54mx0Ck3sWhF8XC9YFi', r.id_rol, 'ACTIVO' FROM roles r WHERE r.nombre='CAJERO' ON DUPLICATE KEY UPDATE password_hash='$2y$12$51ZavYc27XqZMpGsGLPwq.raI2gM1OkeOt54mx0Ck3sWhF8XC9YFi';
+INSERT INTO usuarios (usuario,password_hash,id_rol,estado) SELECT 'vendedor_test', '$2y$12$ZDjq8rVrJ/jPA844QDvv5e.VBHVbUV5PDtjlWGcDcNMRb6PyX1b1u', r.id_rol, 'ACTIVO' FROM roles r WHERE r.nombre='VENDEDOR' ON DUPLICATE KEY UPDATE password_hash='$2y$12$ZDjq8rVrJ/jPA844QDvv5e.VBHVbUV5PDtjlWGcDcNMRb6PyX1b1u';
 
 -- 3. Categorias
 INSERT INTO categorias (nombre,estado) VALUES ('Computadores','ACTIVO') ON DUPLICATE KEY UPDATE id_categoria=id_categoria;
