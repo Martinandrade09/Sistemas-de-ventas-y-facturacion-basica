@@ -47,3 +47,4 @@ $archivoHashes = __DIR__ . '/hashes_nuevos.local.json';
 file_put_contents($archivoHashes, json_encode($salida, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 echo "Hashes guardados en: backend/scripts/hashes_nuevos.local.json (gitignored)" . PHP_EOL;
 echo PHP_EOL . "=== Listo ===" . PHP_EOL;
+

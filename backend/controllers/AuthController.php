@@ -40,8 +40,8 @@ class AuthController {
     }
 
     public function usuarios(): void {
-        $usuarios = $this->usuarioModel->listar();
-        Response::json(true, 'Usuarios del sistema obtenidos', $usuarios);
+        // Tarea B1: Acceso deshabilitado temporalmente desde peticiones públicas por seguridad
+        Response::error('Acceso denegado. Este recurso no está disponible de forma pública.', null, 403);
     }
 }
 
