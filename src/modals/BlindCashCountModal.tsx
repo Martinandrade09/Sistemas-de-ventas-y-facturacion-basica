@@ -7,6 +7,7 @@ interface BlindCashCountModalProps {
   onClose: () => void;
   currentUser: User;
   onToast: (msg: string, isError?: boolean) => void;
+  onCompleteArqueo?: (difference: number, countedTotal: number) => void;
 }
 
 export const BlindCashCountModal: React.FC<BlindCashCountModalProps> = ({
@@ -15,6 +16,7 @@ export const BlindCashCountModal: React.FC<BlindCashCountModalProps> = ({
   onClose,
   currentUser,
   onToast,
+  onCompleteArqueo,
 }) => {
   if (!isOpen) return null;
 
@@ -71,6 +73,7 @@ export const BlindCashCountModal: React.FC<BlindCashCountModalProps> = ({
   };
 
   const handleFinishArqueo = () => {
+    onCompleteArqueo?.(difference, totalCalculated);
     if (difference === 0) {
       onToast('Arqueo de Caja Exitoso: Cuadre perfecto sin faltantes ni sobrantes ($0 COP).', false);
     } else if (difference > 0) {

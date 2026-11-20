@@ -1,5 +1,8 @@
 import { Customer, Product, Sale, CashMovement, KardexMovement, CashSession, User } from '../types';
 
+// ─── Usuarios de demostración ───────────────────────────────────────────────
+// Credenciales FICTICIAS exclusivamente para pruebas de demostración.
+// No representan autenticación real ni contraseñas de producción.
 export const INITIAL_USERS: User[] = [
   {
     id: 'ADM-001',
@@ -7,6 +10,8 @@ export const INITIAL_USERS: User[] = [
     role: 'admin',
     roleLabel: 'Administrador · En Línea',
     code: 'ADM-001',
+    username: 'carlos.mendoza',
+    demoPassword: 'Admin@2024',
   },
   {
     id: 'CAJ-042',
@@ -14,6 +19,8 @@ export const INITIAL_USERS: User[] = [
     role: 'cajero',
     roleLabel: 'Cajero Operativo',
     code: 'POS_CASH',
+    username: 'andres.ruiz',
+    demoPassword: 'Caja@2024',
   },
   {
     id: 'VEN-019',
@@ -21,6 +28,8 @@ export const INITIAL_USERS: User[] = [
     role: 'vendedor',
     roleLabel: 'Vendedora de Mostrador',
     code: 'SALES_OP',
+    username: 'laura.gomez',
+    demoPassword: 'Venta@2024',
   },
 ];
 

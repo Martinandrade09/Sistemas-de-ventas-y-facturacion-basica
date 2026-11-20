@@ -77,31 +77,31 @@ h1, h2, h3, h4, h5, h6, .font-display, .font-heading {
   line-height: 1;
 }
 
-/* Print styles optimized for 80mm thermal POS printers */
+/* Print styles optimized for 80mm thermal POS printers and full-page Audit Reports */
 @media print {
   @page {
     size: 80mm auto;
     margin: 2mm;
   }
 
-  html,
-  body {
+  html:not(.print-report-mode),
+  html:not(.print-report-mode) body {
     width: 80mm !important;
     margin: 0 !important;
     padding: 0 !important;
     background: #ffffff !important;
   }
 
-  body * {
+  html:not(.print-report-mode) body * {
     visibility: hidden;
   }
 
-  #printable-voucher,
-  #printable-voucher * {
+  html:not(.print-report-mode) #printable-voucher,
+  html:not(.print-report-mode) #printable-voucher * {
     visibility: visible;
   }
 
-  #printable-voucher {
+  html:not(.print-report-mode) #printable-voucher {
     position: absolute;
     left: 0;
     top: 0;
@@ -118,7 +118,7 @@ h1, h2, h3, h4, h5, h6, .font-display, .font-heading {
     line-height: 1.3 !important;
   }
 
-  #printable-voucher .thermal-stack {
+  html:not(.print-report-mode) #printable-voucher .thermal-stack {
     display: flex !important;
     flex-direction: column !important;
     align-items: flex-start !important;
@@ -126,32 +126,83 @@ h1, h2, h3, h4, h5, h6, .font-display, .font-heading {
     gap: 6px !important;
   }
 
-  #printable-voucher .thermal-grid-stack {
+  html:not(.print-report-mode) #printable-voucher .thermal-grid-stack {
     display: flex !important;
     flex-direction: column !important;
     gap: 8px !important;
   }
 
-  #printable-voucher .thermal-right-reset {
+  html:not(.print-report-mode) #printable-voucher .thermal-right-reset {
     text-align: left !important;
     width: 100% !important;
     padding: 0 !important;
     background: transparent !important;
   }
 
-  #printable-voucher table {
+  html:not(.print-report-mode) #printable-voucher table {
     width: 100% !important;
     font-size: 9px !important;
     border-collapse: collapse !important;
   }
 
-  #printable-voucher th,
-  #printable-voucher td {
+  html:not(.print-report-mode) #printable-voucher th,
+  html:not(.print-report-mode) #printable-voucher td {
     padding: 3px 2px !important;
   }
 
-  #printable-voucher .thermal-watermark-text {
+  html:not(.print-report-mode) #printable-voucher .thermal-watermark-text {
     font-size: 38px !important;
+  }
+
+  /* Dedicated full-page print layout for Inventory & Cash Movements PDF export */
+  html.print-report-mode,
+  html.print-report-mode body {
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  html.print-report-mode header,
+  html.print-report-mode footer,
+  html.print-report-mode .fixed,
+  html.print-report-mode #reports-interactive-shell {
+    display: none !important;
+  }
+
+  html.print-report-mode main {
+    padding-top: 0 !important;
+    margin: 0 !important;
+  }
+
+  html.print-report-mode #printable-inventory-cash-report {
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+
+  html.print-report-mode #printable-inventory-cash-report * {
+    visibility: visible !important;
+  }
+
+  html.print-report-mode #printable-inventory-cash-report .print-avoid-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  html.print-report-mode #printable-inventory-cash-report tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 
   .no-print {
