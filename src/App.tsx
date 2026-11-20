@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   INITIAL_USERS,
   INITIAL_PRODUCTS,
@@ -8,7 +8,23 @@ import {
   INITIAL_CASH_MOVEMENTS,
   INITIAL_KARDEX_MOVEMENTS,
 } from './data/mockData';
-import { Product, Customer, Sale, User, CashSession, CashMovement, KardexMovement } from './types';
+import {
+  Product,
+  Customer,
+  Sale,
+  User,
+  CashSession,
+  CashMovement,
+  KardexMovement,
+  AdminNotification,
+} from './types';
+import {
+  buildInitialNotifications,
+  createSaleCreatedNotification,
+  createSalePaidNotification,
+  createSaleVoidedNotification,
+  createCashClosingNotification,
+} from './services/notificationService';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { DashboardView } from './views/DashboardView';
@@ -21,14 +37,28 @@ import { VoucherModal } from './modals/VoucherModal';
 import { StockAdjustmentModal } from './modals/StockAdjustmentModal';
 import { BlindCashCountModal } from './modals/BlindCashCountModal';
 import { NewCustomerModal } from './modals/NewCustomerModal';
+import { LoginView } from './views/LoginView';
+import { getDefaultTab, canAccessTab, can } from './auth/permissions';
 
 export default function App() {
+  // Autenticación simulada (modo demostración)
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   // Navigation State
   const [activeTab, setActiveTab] = useState<string>('panel-general');
 
   // RBAC User Session State
   const [users] = useState<User[]>(INITIAL_USERS);
   const [currentUser, setCurrentUser] = useState<User>(INITIAL_USERS[0]);
+
+  // Guard: redirigir a tab permitido si el rol activo no tiene acceso
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    if (!canAccessTab(currentUser.role, activeTab)) {
+      setActiveTab(getDefaultTab(currentUser.role));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser.role, isAuthenticated]);
 
   // Core Data State
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
@@ -37,6 +67,9 @@ export default function App() {
   const [cashSession, setCashSession] = useState<CashSession>(INITIAL_CASH_SESSION);
   const [cashMovements, setCashMovements] = useState<CashMovement[]>(INITIAL_CASH_MOVEMENTS);
   const [kardexMovements, setKardexMovements] = useState<KardexMovement[]>(INITIAL_KARDEX_MOVEMENTS);
+  const [notifications, setNotifications] = useState<AdminNotification[]>(() =>
+    buildInitialNotifications(INITIAL_SALES, INITIAL_CASH_SESSION)
+  );
 
   // Modal Visibility States
   const [isVoidModalOpen, setIsVoidModalOpen] = useState(false);
@@ -71,6 +104,24 @@ export default function App() {
 
   // --- Handlers & Business Logic ---
 
+  // 0. Autenticación simulada (modo demostración)
+  const handleLogin = (user: User) => {
+    setCurrentUser(user);
+    setActiveTab(getDefaultTab(user.role));
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setActiveTab('panel-general');
+    // Resetear modales abiertos
+    setIsVoidModalOpen(false);
+    setIsVoucherModalOpen(false);
+    setIsStockModalOpen(false);
+    setIsBlindCountModalOpen(false);
+    setIsNewCustomerModalOpen(false);
+  };
+
   // 1. Create Pending Sale from POS (RF-07 / RF-08)
   const handleCreateSale = (newSaleData: Partial<Sale>) => {
     const createdSale: Sale = {
@@ -90,6 +141,7 @@ export default function App() {
     };
 
     setSales((prev) => [createdSale, ...prev]);
+    setNotifications((prev) => [createSaleCreatedNotification(createdSale), ...prev]);
   };
 
   // 2. Confirm Payment in Cash Register (ACID: update sale, deduct stock, log cash & kardex)
@@ -156,22 +208,22 @@ export default function App() {
 
     // Update Sale to PAGADA
     const changeGiven = method === 'EFECTIVO' && amountReceived ? Math.max(0, amountReceived - saleToPay.total) : 0;
-    setSales((prev) =>
-      prev.map((s) =>
-        s.id === saleId
-          ? {
-              ...s,
-              status: 'PAGADA',
-              paymentMethod: method,
-              amountReceived: amountReceived || saleToPay.total,
-              changeGiven,
-              cashierName: currentUser.name,
-              cashRegisterId: 4,
-              verificationHash: 'e4d909c290d0f0b1ca068ffaddf22cbd0a1f9401',
-            }
-          : s
-      )
-    );
+    const paidSale: Sale = {
+      ...saleToPay,
+      status: 'PAGADA',
+      paymentMethod: method,
+      amountReceived: amountReceived || saleToPay.total,
+      changeGiven,
+      cashierName: currentUser.name,
+      cashRegisterId: 4,
+      verificationHash: 'e4d909c290d0f0b1ca068ffaddf22cbd0a1f9401',
+    };
+
+    setSales((prev) => prev.map((s) => (s.id === saleId ? paidSale : s)));
+    setNotifications((prev) => [
+      createSalePaidNotification(paidSale, method, currentUser.name),
+      ...prev,
+    ]);
   };
 
   // 3. Atomic Void Protocol (RF-13: Rollback stock & cash)
@@ -239,21 +291,21 @@ export default function App() {
       }));
     }
 
+    const voidedSale: Sale = {
+      ...saleToVoid,
+      status: 'ANULADA',
+      cancellationReason: reason,
+      cancellationDate: '14/11/2024 12:00 PM',
+      cancellationUser: currentUser.name,
+      verificationHash: 'a4c8f932e67df14800b189e904b78912efc4019a',
+    };
+
     // Update Sale to ANULADA
-    setSales((prev) =>
-      prev.map((s) =>
-        s.id === saleId
-          ? {
-              ...s,
-              status: 'ANULADA',
-              cancellationReason: reason,
-              cancellationDate: '14/11/2024 12:00 PM',
-              cancellationUser: currentUser.name,
-              verificationHash: 'a4c8f932e67df14800b189e904b78912efc4019a',
-            }
-          : s
-      )
-    );
+    setSales((prev) => prev.map((s) => (s.id === saleId ? voidedSale : s)));
+    setNotifications((prev) => [
+      createSaleVoidedNotification(voidedSale, reason, currentUser.name, wasPaid),
+      ...prev,
+    ]);
 
     showToast(
       `Venta #${saleToVoid.correlativeNumber} anulada con éxito. Inventario y caja actualizados.`,
@@ -301,6 +353,10 @@ export default function App() {
 
   // --- Modal Openers ---
   const handleOpenVoidModal = (sale: Sale) => {
+    if (!can(currentUser.role, 'void_sale')) {
+      showToast('Acción no autorizada: solo el Administrador puede anular ventas.', true);
+      return;
+    }
     setActiveVoidSale(sale);
     setIsVoidModalOpen(true);
   };
@@ -311,6 +367,10 @@ export default function App() {
   };
 
   const handleOpenStockModal = (productId?: number) => {
+    if (!can(currentUser.role, 'adjust_stock')) {
+      showToast('Acción no autorizada: solo el Administrador puede gestionar inventario.', true);
+      return;
+    }
     setStockModalProductId(productId || null);
     setIsStockModalOpen(true);
   };
@@ -319,6 +379,45 @@ export default function App() {
     setActiveTab('control-de-caja');
   };
 
+  // 6. Cash Closing & Administrative Notification Handlers
+  const handleCompleteArqueo = (difference: number, countedTotal: number) => {
+    setCashSession((prev) => ({
+      ...prev,
+      status: 'CERRADA',
+    }));
+    const closingNotif = createCashClosingNotification(
+      cashSession,
+      difference,
+      countedTotal,
+      currentUser.name
+    );
+    setNotifications((prev) => [
+      closingNotif,
+      ...prev.map((n) =>
+        n.category === 'CAJA_CIERRE' && n.id.startsWith('notif-caja-pendiente')
+          ? { ...n, read: true }
+          : n
+      ),
+    ]);
+  };
+
+  const handleMarkNotificationRead = useCallback((id: string) => {
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+  }, []);
+
+  const handleMarkAllNotificationsRead = useCallback(() => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  }, []);
+
+  const handleDismissNotification = useCallback((id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  }, []);
+
+  // Si no está autenticado, renderizar la pantalla de login (modo demostración)
+  if (!isAuthenticated) {
+    return <LoginView onLogin={handleLogin} />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 antialiased selection:bg-blue-600 selection:text-white">
       {/* 1. Global Navigation Bar */}
@@ -326,30 +425,31 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         currentUser={currentUser}
-        users={users}
-        onSelectUser={(u) => {
-          setCurrentUser(u);
-          showToast(`Rol activo cambiado a: ${u.name} (${u.roleLabel})`, false);
-        }}
+        onLogout={handleLogout}
       />
 
       {/* 2. Main Tab View Router */}
       <main className="flex-1 pt-20">
-        {activeTab === 'panel-general' && (
+        {activeTab === 'panel-general' && canAccessTab(currentUser.role, 'panel-general') && (
           <DashboardView
             sales={sales}
             products={products}
             cashSession={cashSession}
             currentUser={currentUser}
+            notifications={notifications}
             onNavigate={setActiveTab}
             onViewVoucher={handleViewVoucher}
             onPaySale={handlePaySaleFromDashboard}
             onOpenStockModal={handleOpenStockModal}
+            onOpenCashClosingModal={() => setIsBlindCountModalOpen(true)}
+            onMarkNotificationRead={handleMarkNotificationRead}
+            onMarkAllNotificationsRead={handleMarkAllNotificationsRead}
+            onDismissNotification={handleDismissNotification}
             onToast={showToast}
           />
         )}
 
-        {activeTab === 'punto-de-venta' && (
+        {activeTab === 'punto-de-venta' && canAccessTab(currentUser.role, 'punto-de-venta') && (
           <PosView
             products={products}
             customers={customers}
@@ -360,7 +460,7 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'control-de-caja' && (
+        {activeTab === 'control-de-caja' && canAccessTab(currentUser.role, 'control-de-caja') && (
           <CashRegisterView
             sales={sales}
             products={products}
@@ -373,7 +473,7 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'catalogo-inventario' && (
+        {activeTab === 'catalogo-inventario' && canAccessTab(currentUser.role, 'catalogo-inventario') && (
           <InventoryView
             products={products}
             kardexMovements={kardexMovements}
@@ -384,7 +484,7 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'reportes-gestion' && (
+        {activeTab === 'reportes-gestion' && canAccessTab(currentUser.role, 'reportes-gestion') && (
           <ReportsView
             sales={sales}
             products={products}
@@ -404,14 +504,16 @@ export default function App() {
       <Footer />
 
       {/* 4. Modals and Drawers */}
-      <VoidSaleModal
-        sale={activeVoidSale}
-        isOpen={isVoidModalOpen}
-        onClose={() => setIsVoidModalOpen(false)}
-        onConfirmVoid={handleConfirmVoid}
-        currentUser={currentUser}
-        onToast={showToast}
-      />
+      {can(currentUser.role, 'void_sale') && (
+        <VoidSaleModal
+          sale={activeVoidSale}
+          isOpen={isVoidModalOpen}
+          onClose={() => setIsVoidModalOpen(false)}
+          onConfirmVoid={handleConfirmVoid}
+          currentUser={currentUser}
+          onToast={showToast}
+        />
+      )}
 
       <VoucherModal
         sale={activeVoucherSale}
@@ -419,23 +521,28 @@ export default function App() {
         onClose={() => setIsVoucherModalOpen(false)}
       />
 
-      <StockAdjustmentModal
-        products={products}
-        selectedProductId={stockModalProductId}
-        isOpen={isStockModalOpen}
-        onClose={() => setIsStockModalOpen(false)}
-        onAddStock={handleAddStock}
-        currentUser={currentUser}
-        onToast={showToast}
-      />
+      {can(currentUser.role, 'adjust_stock') && (
+        <StockAdjustmentModal
+          products={products}
+          selectedProductId={stockModalProductId}
+          isOpen={isStockModalOpen}
+          onClose={() => setIsStockModalOpen(false)}
+          onAddStock={handleAddStock}
+          currentUser={currentUser}
+          onToast={showToast}
+        />
+      )}
 
-      <BlindCashCountModal
-        session={cashSession}
-        isOpen={isBlindCountModalOpen}
-        onClose={() => setIsBlindCountModalOpen(false)}
-        currentUser={currentUser}
-        onToast={showToast}
-      />
+      {can(currentUser.role, 'cash_closing') && (
+        <BlindCashCountModal
+          session={cashSession}
+          isOpen={isBlindCountModalOpen}
+          onClose={() => setIsBlindCountModalOpen(false)}
+          currentUser={currentUser}
+          onToast={showToast}
+          onCompleteArqueo={handleCompleteArqueo}
+        />
+      )}
 
       <NewCustomerModal
         isOpen={isNewCustomerModalOpen}

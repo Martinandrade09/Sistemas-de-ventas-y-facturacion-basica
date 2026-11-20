@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Product, KardexMovement, User } from '../types';
+import { can } from '../auth/permissions';
 
 interface InventoryViewProps {
   products: Product[];
@@ -22,8 +23,10 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [onlyCriticalUnderFive, setOnlyCriticalUnderFive] = useState(false);
+  const [onlyBelowTwentyPct, setOnlyBelowTwentyPct] = useState(false);
 
   const CRITICAL_THRESHOLD = 5;
+  const MAX_CAPACITY_ALERT_RATIO = 0.2;
 
   // Quick entry form state
   const [quickProductId, setQuickProductId] = useState<number>(3); // Mouse M170 (low stock)
@@ -34,7 +37,12 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
   );
   const [isSubmittingQuick, setIsSubmittingQuick] = useState(false);
 
+  const isProductBelowTwentyPct = (product: Product) =>
+    product.optimalStock > 0 && product.currentStock < product.optimalStock * MAX_CAPACITY_ALERT_RATIO;
+
   const criticalUnderFiveCount = products.filter((p) => p.currentStock < CRITICAL_THRESHOLD).length;
+  const belowTwentyPctProducts = products.filter(isProductBelowTwentyPct);
+  const belowTwentyPctCount = belowTwentyPctProducts.length;
 
   const filteredProducts = products.filter((p) => {
     const matchesSearch =
@@ -45,8 +53,9 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
     const matchesCat = categoryFilter === 'all' || p.category.toLowerCase() === categoryFilter.toLowerCase();
     const matchesStatus = statusFilter === 'all' || p.status.toLowerCase() === statusFilter.toLowerCase();
     const matchesCritical = !onlyCriticalUnderFive || p.currentStock < CRITICAL_THRESHOLD;
+    const matchesBelowTwenty = !onlyBelowTwentyPct || isProductBelowTwentyPct(p);
 
-    return matchesSearch && matchesCat && matchesStatus && matchesCritical;
+    return matchesSearch && matchesCat && matchesStatus && matchesCritical && matchesBelowTwenty;
   });
 
   const totalPhysicalUnits = products.reduce((sum, p) => sum + p.currentStock, 0);
@@ -87,15 +96,17 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
-          <button
-            onClick={() => onOpenStockModal()}
-            className="px-4 py-2.5 bg-slate-900 hover:bg-blue-600 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-[18px]">add_box</span>
-            <span>+ Registrar Entrada / Ajuste de Stock</span>
-          </button>
-        </div>
+        {can(currentUser.role, 'adjust_stock') && (
+          <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+            <button
+              onClick={() => onOpenStockModal()}
+              className="px-4 py-2.5 bg-slate-900 hover:bg-blue-600 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[18px]">add_box</span>
+              <span>+ Registrar Entrada / Ajuste de Stock</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 2. Stock Integrity Banner */}
@@ -174,6 +185,69 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
         </div>
       </div>
 
+      {/* 3.5 Visual Amber Alert Banner: Products below 20% of configured max stock */}
+      {belowTwentyPctCount > 0 && (
+        <div
+          role="alert"
+          className="p-4 sm:p-5 rounded-2xl bg-amber-50 border border-amber-300 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4 animate-in fade-in duration-150"
+        >
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <span className="material-symbols-outlined text-[22px]">notification_important</span>
+            </div>
+            <div className="space-y-1.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-amber-900">
+                  Alerta Visual · Stock Inferior al 20% del Máximo
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-bold font-mono bg-amber-500 text-white">
+                  {belowTwentyPctCount} producto(s) &lt; 20%
+                </span>
+              </div>
+              <p className="text-xs text-amber-900/90 leading-relaxed">
+                Los siguientes productos se destacan en <strong>ámbar</strong> en el catálogo porque su stock actual está por debajo del <strong>20% de su capacidad máxima configurada</strong>:
+              </p>
+              <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                {belowTwentyPctProducts.map((prod) => {
+                  const pct = Math.round((prod.currentStock / prod.optimalStock) * 100);
+                  return (
+                    <button
+                      key={`amber-alert-${prod.id}`}
+                      type="button"
+                      onClick={() => onOpenStockModal(prod.id)}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 border border-amber-300 text-xs font-semibold text-amber-950 transition-colors cursor-pointer shadow-2xs"
+                      title={`Reabastecer ${prod.name} (Stock máximo: ${prod.optimalStock} unid.)`}
+                    >
+                      <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                      <span className="font-mono font-bold text-amber-800">{prod.code}</span>
+                      <span className="truncate max-w-[160px]">{prod.name}</span>
+                      <span className="px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 font-mono font-bold text-[11px]">
+                        {prod.currentStock}/{prod.optimalStock} ({pct}%)
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0 self-end lg:self-center">
+            <button
+              type="button"
+              onClick={() => setOnlyBelowTwentyPct((prev) => !prev)}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer flex items-center gap-1.5 ${
+                onlyBelowTwentyPct
+                  ? 'bg-amber-600 border-amber-600 text-white'
+                  : 'bg-white hover:bg-amber-100 border-amber-300 text-amber-900'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[16px]">filter_alt</span>
+              <span>{onlyBelowTwentyPct ? 'Mostrando < 20%' : 'Aislar en Catálogo'}</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 4. Main Two Column Layout: Table vs Fast Entry Form */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column (8 cols): Table */}
@@ -220,46 +294,82 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                 </div>
               </div>
 
-              {/* Critical Threshold (< 5 units) Toggle Filter Bar */}
+              {/* Threshold Toggle Filters (< 5 units & < 20% max stock) */}
               <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={onlyCriticalUnderFive}
-                  onClick={() => setOnlyCriticalUnderFive((prev) => !prev)}
-                  className={`inline-flex items-center gap-2.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                    onlyCriticalUnderFive
-                      ? 'bg-rose-600 border-rose-600 text-white shadow-sm'
-                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-700'
-                  }`}
-                >
-                  <span
-                    className={`w-8 h-4.5 rounded-full p-0.5 transition-colors flex items-center ${
-                      onlyCriticalUnderFive ? 'bg-rose-800 justify-end' : 'bg-slate-300 justify-start'
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={onlyBelowTwentyPct}
+                    onClick={() => setOnlyBelowTwentyPct((prev) => !prev)}
+                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      onlyBelowTwentyPct
+                        ? 'bg-amber-500 border-amber-500 text-white shadow-sm'
+                        : 'bg-amber-50/70 border-amber-200 text-amber-900 hover:bg-amber-100 hover:border-amber-300'
                     }`}
                   >
-                    <span className="w-3.5 h-3.5 rounded-full bg-white shadow-xs block"></span>
-                  </span>
-                  <span className="material-symbols-outlined text-[16px]">warning</span>
-                  <span>Solo Stock Crítico (&lt; 5 unidades)</span>
-                  <span
-                    className={`px-1.5 py-0.2 rounded-full font-mono text-[11px] font-bold ${
-                      onlyCriticalUnderFive
-                        ? 'bg-white text-rose-700'
-                        : 'bg-rose-100 text-rose-700'
-                    }`}
-                  >
-                    {criticalUnderFiveCount}
-                  </span>
-                </button>
+                    <span
+                      className={`w-8 h-4.5 rounded-full p-0.5 transition-colors flex items-center ${
+                        onlyBelowTwentyPct ? 'bg-amber-700 justify-end' : 'bg-amber-300 justify-start'
+                      }`}
+                    >
+                      <span className="w-3.5 h-3.5 rounded-full bg-white shadow-xs block"></span>
+                    </span>
+                    <span className="material-symbols-outlined text-[16px]">trending_down</span>
+                    <span>Alerta &lt; 20% Stock Máx.</span>
+                    <span
+                      className={`px-1.5 py-0.2 rounded-full font-mono text-[11px] font-bold ${
+                        onlyBelowTwentyPct
+                          ? 'bg-white text-amber-800'
+                          : 'bg-amber-200/80 text-amber-950'
+                      }`}
+                    >
+                      {belowTwentyPctCount}
+                    </span>
+                  </button>
 
-                {onlyCriticalUnderFive && (
-                  <div className="flex items-center gap-2 text-[11px] text-rose-700 font-semibold">
-                    <span>Mostrando únicamente productos por debajo de 5 unidades</span>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={onlyCriticalUnderFive}
+                    onClick={() => setOnlyCriticalUnderFive((prev) => !prev)}
+                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                      onlyCriticalUnderFive
+                        ? 'bg-rose-600 border-rose-600 text-white shadow-sm'
+                        : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-700'
+                    }`}
+                  >
+                    <span
+                      className={`w-8 h-4.5 rounded-full p-0.5 transition-colors flex items-center ${
+                        onlyCriticalUnderFive ? 'bg-rose-800 justify-end' : 'bg-slate-300 justify-start'
+                      }`}
+                    >
+                      <span className="w-3.5 h-3.5 rounded-full bg-white shadow-xs block"></span>
+                    </span>
+                    <span className="material-symbols-outlined text-[16px]">warning</span>
+                    <span>Solo Stock Crítico (&lt; 5 unid.)</span>
+                    <span
+                      className={`px-1.5 py-0.2 rounded-full font-mono text-[11px] font-bold ${
+                        onlyCriticalUnderFive
+                          ? 'bg-white text-rose-700'
+                          : 'bg-rose-100 text-rose-700'
+                      }`}
+                    >
+                      {criticalUnderFiveCount}
+                    </span>
+                  </button>
+                </div>
+
+                {(onlyCriticalUnderFive || onlyBelowTwentyPct) && (
+                  <div className="flex items-center gap-2 text-[11px] text-amber-800 font-semibold">
+                    <span>Filtro de alerta activo</span>
                     <button
                       type="button"
-                      onClick={() => setOnlyCriticalUnderFive(false)}
-                      className="underline hover:text-rose-900 cursor-pointer"
+                      onClick={() => {
+                        setOnlyCriticalUnderFive(false);
+                        setOnlyBelowTwentyPct(false);
+                      }}
+                      className="underline hover:text-amber-950 cursor-pointer"
                     >
                       Ver todo el catálogo
                     </button>
@@ -278,7 +388,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                     <th className="py-3 px-4">Categoría</th>
                     <th className="py-3 px-4">Precio Venta</th>
                     <th className="py-3 px-4 text-center">Stock Actual</th>
-                    <th className="py-3 px-4 text-center">Stock Mínimo</th>
+                    <th className="py-3 px-4 text-center">Mín / Máx Config.</th>
                     <th className="py-3 px-4 text-right">Acción</th>
                   </tr>
                 </thead>
@@ -291,7 +401,9 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                             inventory_2
                           </span>
                           <span className="font-semibold text-slate-700">
-                            {onlyCriticalUnderFive
+                            {onlyBelowTwentyPct
+                              ? 'No hay productos por debajo del 20% de su stock máximo bajo los filtros actuales.'
+                              : onlyCriticalUnderFive
                               ? 'No hay productos con stock por debajo de 5 unidades bajo los filtros actuales.'
                               : 'No se encontraron productos que coincidan con la búsqueda.'}
                           </span>
@@ -302,6 +414,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                               setCategoryFilter('all');
                               setStatusFilter('all');
                               setOnlyCriticalUnderFive(false);
+                              setOnlyBelowTwentyPct(false);
                             }}
                             className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition-colors cursor-pointer"
                           >
@@ -312,22 +425,46 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                     </tr>
                   ) : (
                     filteredProducts.map((p) => {
+                      const isBelowTwenty = isProductBelowTwentyPct(p);
+                      const maxStockPct = p.optimalStock > 0
+                        ? Math.min(100, Math.round((p.currentStock / p.optimalStock) * 100))
+                        : 100;
                       const isCritical = p.currentStock < CRITICAL_THRESHOLD;
                       const isLow = !isCritical && p.currentStock <= p.minStock;
 
                       return (
                         <tr
                           key={p.id}
-                          className={`hover:bg-slate-50/80 transition-colors ${
-                            isCritical ? 'bg-rose-50/30' : ''
+                          className={`transition-colors ${
+                            isBelowTwenty
+                              ? 'bg-amber-50/85 hover:bg-amber-100/70 border-l-4 border-l-amber-500'
+                              : isCritical
+                              ? 'bg-rose-50/30 hover:bg-slate-50/80'
+                              : 'hover:bg-slate-50/80'
                           }`}
                         >
                           <td className="py-3 px-4 font-mono font-bold text-slate-900 whitespace-nowrap">
-                            {p.code}
+                            <div className="flex items-center gap-1.5">
+                              {isBelowTwenty && (
+                                <span
+                                  className="w-2 h-2 rounded-full bg-amber-500 shrink-0 animate-pulse"
+                                  title="Alerta: stock inferior al 20% del máximo configurado"
+                                ></span>
+                              )}
+                              <span>{p.code}</span>
+                            </div>
                           </td>
                           <td className="py-3 px-4">
-                            <div className="font-semibold text-slate-900">{p.name}</div>
-                            <div className="text-[11px] text-slate-400 line-clamp-1">{p.description}</div>
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span className="font-semibold text-slate-900">{p.name}</span>
+                              {isBelowTwenty && (
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-200/80 text-amber-950 border border-amber-300 text-[10px] font-extrabold uppercase tracking-tight">
+                                  <span className="material-symbols-outlined text-[12px]">warning</span>
+                                  &lt; 20% Máx ({maxStockPct}%)
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[11px] text-slate-500 line-clamp-1">{p.description}</div>
                           </td>
                           <td className="py-3 px-4 whitespace-nowrap">
                             <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px]">
@@ -338,31 +475,66 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                             ${p.salePrice.toLocaleString('es-CO')}
                           </td>
                           <td className="py-3 px-4 text-center whitespace-nowrap">
-                            <span
-                              className={`inline-flex flex-col items-center px-2.5 py-1 rounded-xl text-xs font-bold ${
-                                isCritical
-                                  ? 'bg-rose-100 text-rose-800'
-                                  : isLow
-                                  ? 'bg-amber-100 text-amber-800'
-                                  : 'bg-blue-100 text-blue-800'
-                              }`}
-                            >
-                              <span className="text-sm">{p.currentStock} unid.</span>
-                              <span className="text-[9px] uppercase font-bold tracking-tight">
-                                {isCritical ? 'CRÍTICO (<5)' : isLow ? 'STOCK BAJO' : 'ÓPTIMO'}
+                            <div className="inline-flex flex-col items-center gap-1">
+                              <span
+                                className={`inline-flex flex-col items-center px-2.5 py-1 rounded-xl text-xs font-bold ${
+                                  isBelowTwenty
+                                    ? 'bg-amber-100 text-amber-950 border border-amber-300'
+                                    : isCritical
+                                    ? 'bg-rose-100 text-rose-800'
+                                    : isLow
+                                    ? 'bg-amber-100 text-amber-800'
+                                    : 'bg-blue-100 text-blue-800'
+                                }`}
+                              >
+                                <span className="text-sm">{p.currentStock} unid.</span>
+                                <span className="text-[9px] uppercase font-bold tracking-tight">
+                                  {isBelowTwenty
+                                    ? `ALERTA ${maxStockPct}% MÁX`
+                                    : isCritical
+                                    ? 'CRÍTICO (<5)'
+                                    : isLow
+                                    ? 'STOCK BAJO'
+                                    : 'ÓPTIMO'}
+                                </span>
                               </span>
-                            </span>
+                              <div className="w-24 h-1.5 bg-slate-200/80 rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full ${
+                                    isBelowTwenty
+                                      ? 'bg-amber-500'
+                                      : isCritical
+                                      ? 'bg-rose-500'
+                                      : isLow
+                                      ? 'bg-amber-400'
+                                      : 'bg-blue-600'
+                                  }`}
+                                  style={{ width: `${Math.max(6, maxStockPct)}%` }}
+                                ></div>
+                              </div>
+                            </div>
                           </td>
                           <td className="py-3 px-4 text-center font-mono text-slate-600 whitespace-nowrap">
-                            Mín: {p.minStock} unid.
+                            <div>Mín: {p.minStock} unid.</div>
+                            <div className="text-[11px] font-bold text-slate-800">
+                              Máx: {p.optimalStock} unid.
+                            </div>
                           </td>
                           <td className="py-3 px-4 text-right whitespace-nowrap">
-                            <button
-                              onClick={() => onOpenStockModal(p.id)}
-                              className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-[11px] rounded-lg transition-colors cursor-pointer"
-                            >
-                              Ajustar
-                            </button>
+                            {can(currentUser.role, 'adjust_stock') ? (
+                              <button
+                                onClick={() => onOpenStockModal(p.id)}
+                                className={`px-3 py-1 font-bold text-[11px] rounded-lg transition-colors cursor-pointer ${
+                                  isBelowTwenty
+                                    ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-2xs'
+                                    : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
+                                }`}
+                              >
+                                {isBelowTwenty ? 'Reabastecer' : 'Ajustar'}
+                              </button>
+                            ) : (
+                              <span className="text-[11px] text-slate-400 font-medium">Solo lectura</span>
+                            )}
                           </td>
                         </tr>
                       );

@@ -7,6 +7,10 @@ export interface User {
   roleLabel: string;
   avatarUrl?: string;
   code: string;
+  /** Usuario de inicio de sesión (modo demostración) */
+  username: string;
+  /** Contraseña ficticia solo para demostración — NO usar en producción */
+  demoPassword: string;
 }
 
 export type Category = 'Almacenamiento' | 'Periféricos' | 'Componentes' | 'Accesorios';
@@ -115,4 +119,27 @@ export interface CashSession {
   totalSalesBank: number; // $480,000
   totalOutflows: number; // -$50,000
   totalRefunds: number; // $0
+}
+
+export type AdminNotificationCategory =
+  | 'CAJA_CIERRE'
+  | 'VENTA_ESTADO'
+  | 'VENTA_ANULADA'
+  | 'COBRO_PENDIENTE';
+
+export type AdminNotificationSeverity = 'info' | 'warning' | 'critical' | 'success';
+
+export interface AdminNotification {
+  id: string;
+  category: AdminNotificationCategory;
+  severity: AdminNotificationSeverity;
+  title: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+  actionTab?: string;
+  actionType?: 'OPEN_ARQUEO' | 'NAVIGATE' | 'VIEW_VOUCHER';
+  actionLabel?: string;
+  saleId?: number;
+  meta?: string;
 }

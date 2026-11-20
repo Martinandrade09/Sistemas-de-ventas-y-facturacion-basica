@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Sale, Product, CashSession, CashMovement, User, KardexMovement } from '../types';
 import { generateManagementPdfReport } from '../utils/pdfReportGenerator';
 
@@ -300,6 +300,30 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
     }
   };
 
+  const cleanupPrintMode = () => {
+    document.documentElement.classList.remove('print-report-mode');
+    const existingStyle = document.getElementById('report-print-page-override');
+    if (existingStyle) existingStyle.remove();
+  };
+
+  useEffect(() => {
+    return () => {
+      cleanupPrintMode();
+    };
+  }, []);
+
+  const handlePrintInventoryAndCashReport = () => {
+    cleanupPrintMode();
+    const pageStyle = document.createElement('style');
+    pageStyle.id = 'report-print-page-override';
+    pageStyle.textContent = '@media print { @page { size: letter portrait; margin: 12mm; } }';
+    document.head.appendChild(pageStyle);
+    document.documentElement.classList.add('print-report-mode');
+
+    window.addEventListener('afterprint', cleanupPrintMode, { once: true });
+    window.print();
+  };
+
   const totalSalesVolume = sales.reduce((sum, s) => sum + s.total, 0);
   const paidSales = sales.filter((s) => s.status === 'PAGADA');
   const pendingSales = sales.filter((s) => s.status === 'PENDIENTE');
@@ -309,8 +333,20 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
   const pendingAmount = pendingSales.reduce((sum, s) => sum + s.total, 0);
   const voidAmount = voidSales.reduce((sum, s) => sum + s.total, 0);
 
+  const cashExpectedBalance =
+    cashSession.openingBalance +
+    cashSession.totalSalesCash -
+    cashSession.totalOutflows -
+    cashSession.totalRefunds;
+
+  const cashMovementsNet = cashMovements.reduce((sum, mov) => sum + mov.amount, 0);
+
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6 animate-in fade-in duration-150">
+    <>
+      <div
+        id="reports-interactive-shell"
+        className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6 animate-in fade-in duration-150"
+      >
       {/* 1. Header & Context */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="space-y-2">
@@ -334,11 +370,13 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
         <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
           <button
-            onClick={() => window.print()}
-            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+            type="button"
+            onClick={handlePrintInventoryAndCashReport}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+            title="Imprimir o exportar a PDF los movimientos de inventario y caja sobre contenedor dedicado"
           >
             <span className="material-symbols-outlined text-[18px]">print</span>
-            <span>Imprimir Ficha</span>
+            <span>Imprimir Inv. y Caja (PDF)</span>
           </button>
           <button
             onClick={handleExportSalesCsv}
@@ -1305,14 +1343,24 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                   Registro inmutable de aperturas, cobros, egresos autorizados y devoluciones de gaveta fiscal.
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={handleExportManagementPdf}
-                className="px-3.5 py-2 bg-slate-900 hover:bg-blue-600 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-xs transition-colors self-start sm:self-auto cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[17px]">picture_as_pdf</span>
-                <span>Descargar Resumen Gerencial PDF</span>
-              </button>
+              <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+                <button
+                  type="button"
+                  onClick={handlePrintInventoryAndCashReport}
+                  className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[17px]">print</span>
+                  <span>Imprimir Inv. y Caja (PDF)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExportManagementPdf}
+                  className="px-3.5 py-2 bg-slate-900 hover:bg-blue-600 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[17px]">picture_as_pdf</span>
+                  <span>Descargar Resumen Gerencial PDF</span>
+                </button>
+              </div>
             </div>
 
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
@@ -1388,6 +1436,274 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           </div>
         </div>
       )}
-    </div>
+      </div>
+
+      {/* Dedicated Print-to-PDF Container for Inventory & Cash Movements */}
+      <section
+        id="printable-inventory-cash-report"
+        className="hidden bg-white text-slate-900 font-sans"
+      >
+        {/* Document Header */}
+        <div className="border-b-2 border-slate-900 pb-4 mb-5 flex items-start justify-between gap-4">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-blue-700">
+              Sistema de Ventas &amp; Facturación · Auditoría Operativa
+            </p>
+            <h1 className="text-xl font-extrabold text-slate-900 mt-1">
+              Reporte de Movimientos de Inventario y Caja
+            </h1>
+            <p className="text-xs text-slate-600 mt-0.5">
+              Consolidado oficial de Kardex de existencias y movimientos de efectivo/bancos
+            </p>
+          </div>
+          <div className="text-right text-[11px] text-slate-700 space-y-0.5 shrink-0">
+            <div>
+              <strong>Fecha emisión:</strong> {new Date().toLocaleDateString('es-CO')}{' '}
+              {new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
+            </div>
+            <div>
+              <strong>Caja / Turno:</strong> {cashSession.registerNumber} · {cashSession.turnName}
+            </div>
+            <div>
+              <strong>Cajero:</strong> {cashSession.cashier} (ID: {cashSession.cashierId})
+            </div>
+            <div>
+              <strong>Emitido por:</strong> {currentUser.name} ({currentUser.code})
+            </div>
+          </div>
+        </div>
+
+        {/* Executive Summary Grid */}
+        <div className="grid grid-cols-2 gap-4 mb-6 print-avoid-break">
+          <div className="border border-slate-300 rounded-lg p-3.5 bg-slate-50">
+            <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-200 pb-1.5 mb-2">
+              Resumen de Inventario (Kardex)
+            </h2>
+            <div className="grid grid-cols-2 gap-y-1.5 text-xs">
+              <span className="text-slate-600">Rango aplicado:</span>
+              <span className="font-semibold text-right">
+                {kardexStartDate || kardexEndDate
+                  ? `${kardexStartDate ? formatDisplayDate(kardexStartDate) : 'Inicio'} - ${
+                      kardexEndDate ? formatDisplayDate(kardexEndDate) : 'Actual'
+                    }`
+                  : 'Historial completo'}
+              </span>
+              <span className="text-slate-600">Movimientos listados:</span>
+              <span className="font-mono font-bold text-right">{filteredKardex.length}</span>
+              <span className="text-slate-600">Total entradas:</span>
+              <span className="font-mono font-bold text-emerald-700 text-right">
+                +{kardexSummary.entries} unid.
+              </span>
+              <span className="text-slate-600">Total salidas:</span>
+              <span className="font-mono font-bold text-rose-700 text-right">
+                -{kardexSummary.exits} unid.
+              </span>
+              <span className="text-slate-800 font-bold pt-1 border-t border-slate-200">
+                Variación neta:
+              </span>
+              <span className="font-mono font-extrabold text-slate-900 text-right pt-1 border-t border-slate-200">
+                {kardexSummary.net >= 0 ? `+${kardexSummary.net}` : kardexSummary.net} unid.
+              </span>
+            </div>
+          </div>
+
+          <div className="border border-slate-300 rounded-lg p-3.5 bg-slate-50">
+            <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-200 pb-1.5 mb-2">
+              Resumen de Caja ({cashSession.registerNumber})
+            </h2>
+            <div className="grid grid-cols-2 gap-y-1.5 text-xs">
+              <span className="text-slate-600">Saldo apertura:</span>
+              <span className="font-mono font-semibold text-right">
+                ${cashSession.openingBalance.toLocaleString('es-CO')} COP
+              </span>
+              <span className="text-slate-600">Ingresos efectivo:</span>
+              <span className="font-mono font-bold text-emerald-700 text-right">
+                +${cashSession.totalSalesCash.toLocaleString('es-CO')} COP
+              </span>
+              <span className="text-slate-600">Transferencias bancarias:</span>
+              <span className="font-mono font-bold text-blue-700 text-right">
+                +${cashSession.totalSalesBank.toLocaleString('es-CO')} COP
+              </span>
+              <span className="text-slate-600">Egresos y devoluciones:</span>
+              <span className="font-mono font-bold text-rose-700 text-right">
+                -${(cashSession.totalOutflows + cashSession.totalRefunds).toLocaleString('es-CO')} COP
+              </span>
+              <span className="text-slate-800 font-bold pt-1 border-t border-slate-200">
+                Saldo físico esperado:
+              </span>
+              <span className="font-mono font-extrabold text-slate-900 text-right pt-1 border-t border-slate-200">
+                ${cashExpectedBalance.toLocaleString('es-CO')} COP
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 1: Inventory Movements (Kardex) */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-sm font-extrabold text-slate-900 uppercase tracking-wide">
+              1. Movimientos de Inventario (Kardex)
+            </h2>
+            <span className="text-[11px] font-mono text-slate-600">
+              {filteredKardex.length} registro(s)
+            </span>
+          </div>
+
+          <table className="w-full border-collapse border border-slate-300 text-[10px]">
+            <thead>
+              <tr className="bg-slate-100 text-slate-700 uppercase">
+                <th className="border border-slate-300 py-1.5 px-2 text-left">ID / TX</th>
+                <th className="border border-slate-300 py-1.5 px-2 text-left">Fecha / Hora</th>
+                <th className="border border-slate-300 py-1.5 px-2 text-left">SKU / Producto</th>
+                <th className="border border-slate-300 py-1.5 px-2 text-left">Tipo</th>
+                <th className="border border-slate-300 py-1.5 px-2 text-right">Cant.</th>
+                <th className="border border-slate-300 py-1.5 px-2 text-left">Documento</th>
+                <th className="border border-slate-300 py-1.5 px-2 text-left">Motivo</th>
+                <th className="border border-slate-300 py-1.5 px-2 text-left">Responsable</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredKardex.length > 0 ? (
+                filteredKardex.map((mov) => {
+                  const isOut = mov.type === 'SALIDA_VENTA';
+                  return (
+                    <tr key={`print-kardex-${mov.id}`}>
+                      <td className="border border-slate-300 py-1.5 px-2 font-mono font-bold whitespace-nowrap">
+                        #{mov.id}
+                      </td>
+                      <td className="border border-slate-300 py-1.5 px-2 whitespace-nowrap">
+                        {mov.date} {mov.time}
+                      </td>
+                      <td className="border border-slate-300 py-1.5 px-2">
+                        <span className="font-mono font-bold">{mov.productCode}</span> · {mov.productName}
+                      </td>
+                      <td className="border border-slate-300 py-1.5 px-2 font-mono whitespace-nowrap">
+                        {mov.type}
+                      </td>
+                      <td
+                        className={`border border-slate-300 py-1.5 px-2 text-right font-mono font-bold whitespace-nowrap ${
+                          isOut ? 'text-rose-700' : 'text-emerald-700'
+                        }`}
+                      >
+                        {isOut ? `-${mov.quantity}` : `+${mov.quantity}`}
+                      </td>
+                      <td className="border border-slate-300 py-1.5 px-2 font-mono whitespace-nowrap">
+                        {mov.documentRef}
+                      </td>
+                      <td className="border border-slate-300 py-1.5 px-2">{mov.reason}</td>
+                      <td className="border border-slate-300 py-1.5 px-2 whitespace-nowrap">
+                        {mov.user}
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={8} className="border border-slate-300 py-3 px-2 text-center text-slate-500">
+                    No hay movimientos de inventario registrados para el filtro seleccionado.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Section 2: Cash Movements */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-sm font-extrabold text-slate-900 uppercase tracking-wide">
+              2. Movimientos de Caja ({cashSession.registerNumber})
+            </h2>
+            <span className="text-[11px] font-mono text-slate-600">
+              {cashMovements.length} movimiento(s)
+            </span>
+          </div>
+
+          <table className="w-full border-collapse border border-slate-300 text-[10px]">
+            <thead>
+              <tr className="bg-slate-100 text-slate-700 uppercase">
+                <th className="border border-slate-300 py-1.5 px-2 text-left">ID</th>
+                <th className="border border-slate-300 py-1.5 px-2 text-left">Fecha / Hora</th>
+                <th className="border border-slate-300 py-1.5 px-2 text-left">Tipo</th>
+                <th className="border border-slate-300 py-1.5 px-2 text-left">Método</th>
+                <th className="border border-slate-300 py-1.5 px-2 text-left">Soporte</th>
+                <th className="border border-slate-300 py-1.5 px-2 text-left">Concepto</th>
+                <th className="border border-slate-300 py-1.5 px-2 text-right">Importe (COP)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cashMovements.length > 0 ? (
+                cashMovements.map((mov) => (
+                  <tr key={`print-cash-${mov.id}`}>
+                    <td className="border border-slate-300 py-1.5 px-2 font-mono font-bold whitespace-nowrap">
+                      #{mov.id}
+                    </td>
+                    <td className="border border-slate-300 py-1.5 px-2 whitespace-nowrap">
+                      {mov.date} {mov.time}
+                    </td>
+                    <td className="border border-slate-300 py-1.5 px-2 font-mono whitespace-nowrap">
+                      {mov.type}
+                    </td>
+                    <td className="border border-slate-300 py-1.5 px-2 font-mono whitespace-nowrap">
+                      {mov.method}
+                    </td>
+                    <td className="border border-slate-300 py-1.5 px-2 font-mono whitespace-nowrap">
+                      {mov.receiptNumber || (mov.saleId ? `VTA-${mov.saleId}` : '—')}
+                    </td>
+                    <td className="border border-slate-300 py-1.5 px-2">{mov.concept}</td>
+                    <td
+                      className={`border border-slate-300 py-1.5 px-2 text-right font-mono font-bold whitespace-nowrap ${
+                        mov.amount < 0 ? 'text-rose-700' : 'text-emerald-700'
+                      }`}
+                    >
+                      {mov.amount < 0
+                        ? `-$${Math.abs(mov.amount).toLocaleString('es-CO')}`
+                        : `+$${mov.amount.toLocaleString('es-CO')}`}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="border border-slate-300 py-3 px-2 text-center text-slate-500">
+                    No hay movimientos de caja registrados en la sesión actual.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+            <tfoot>
+              <tr className="bg-slate-100 font-bold">
+                <td colSpan={6} className="border border-slate-300 py-1.5 px-2 text-right uppercase">
+                  Total neto de movimientos registrados:
+                </td>
+                <td className="border border-slate-300 py-1.5 px-2 text-right font-mono">
+                  {cashMovementsNet < 0
+                    ? `-$${Math.abs(cashMovementsNet).toLocaleString('es-CO')}`
+                    : `+$${cashMovementsNet.toLocaleString('es-CO')}`}{' '}
+                  COP
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        {/* Signature Block */}
+        <div className="grid grid-cols-2 gap-10 pt-6 border-t border-slate-300 text-[11px] text-slate-700 print-avoid-break">
+          <div>
+            <div className="border-b border-slate-400 h-10 mb-1.5"></div>
+            <p className="font-bold text-slate-900">Responsable de Auditoría / Emisión</p>
+            <p>
+              {currentUser.name} · {currentUser.code}
+            </p>
+          </div>
+          <div>
+            <div className="border-b border-slate-400 h-10 mb-1.5"></div>
+            <p className="font-bold text-slate-900">Aprobación Gerencia / Supervisión de Caja</p>
+            <p>
+              {cashSession.registerNumber} · Cajero: {cashSession.cashier}
+            </p>
+          </div>
+        </div>
+      </section>
+    </>
   );
 };
