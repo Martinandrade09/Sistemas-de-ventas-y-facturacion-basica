@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../models/Usuario.php';
 require_once __DIR__ . '/../config/Response.php';
+require_once __DIR__ . '/../config/Auth.php';
 
 class AuthController {
     private Usuario $usuarioModel;
@@ -9,6 +10,9 @@ class AuthController {
         $this->usuarioModel = new Usuario();
     }
 
+    /**
+     * Inicio de sesión seguro con verificación de hash Bcrypt y cookie de sesión HttpOnly
+     */
     public function login(): void {
         $data = Response::getJsonInput();
 
@@ -16,9 +20,10 @@ class AuthController {
             Response::error('Usuario y contraseña son requeridos', null, 422);
         }
 
-        $usuario = $this->usuarioModel->obtenerPorUsuario($data['usuario']);
+        $usuario = $this->usuarioModel->obtenerPorUsuario(trim((string)$data['usuario']));
 
-        if (!$usuario || !password_verify($data['password'], $usuario['password_hash'])) {
+        // Mensaje genérico de seguridad para no revelar si el usuario existe
+        if (!$usuario || !password_verify((string)$data['password'], (string)$usuario['password_hash'])) {
             Response::error('Credenciales de acceso inválidas', null, 401);
         }
 
@@ -26,22 +31,48 @@ class AuthController {
             Response::error('El usuario se encuentra inactivo. Comuníquese con el administrador.', null, 403);
         }
 
-        // Retornar información segura de sesión sin exponer el hash
-        unset($usuario['password_hash']);
+        // Registrar sesión segura en el servidor
+        Auth::login($usuario);
+
+        $usuarioSesion = [
+            'id_usuario' => (int)$usuario['id_usuario'],
+            'usuario'    => (string)$usuario['usuario'],
+            'id_rol'     => (int)$usuario['id_rol'],
+            'rol_nombre' => strtoupper(trim((string)$usuario['rol_nombre'])),
+            'estado'     => (string)$usuario['estado']
+        ];
+
         Response::json(true, 'Inicio de sesión exitoso', [
-            'usuario' => $usuario,
-            'token'   => base64_encode(json_encode([
-                'id_usuario' => $usuario['id_usuario'],
-                'usuario'    => $usuario['usuario'],
-                'rol'        => $usuario['rol_nombre'],
-                'exp'        => time() + (86400 * 7) // 7 días
-            ]))
+            'usuario'    => $usuarioSesion,
+            'csrf_token' => Auth::csrfToken()
         ]);
     }
 
+    /**
+     * Cierre de sesión seguro: destruye la sesión y su cookie en el servidor
+     */
+    public function logout(): void {
+        Auth::logout();
+        Response::json(true, 'Sesión finalizada exitosamente');
+    }
+
+    /**
+     * Consulta y valida el estado de la sesión activa
+     */
+    public function me(): void {
+        $usuario = Auth::requireAuth();
+        Response::json(true, 'Sesión activa verificada', [
+            'usuario'    => $usuario,
+            'csrf_token' => Auth::csrfToken()
+        ]);
+    }
+
+    /**
+     * Lista usuarios del sistema (Acción estrictamente restringida a ADMINISTRADOR)
+     */
     public function usuarios(): void {
-        // Tarea B1: Acceso deshabilitado temporalmente desde peticiones públicas por seguridad
-        Response::error('Acceso denegado. Este recurso no está disponible de forma pública.', null, 403);
+        Auth::requireRole('ADMINISTRADOR');
+        $usuarios = $this->usuarioModel->listar();
+        Response::json(true, 'Usuarios del sistema obtenidos correctamente', $usuarios);
     }
 }
-

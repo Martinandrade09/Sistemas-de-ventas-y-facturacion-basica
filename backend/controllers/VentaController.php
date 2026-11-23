@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../models/Venta.php';
 require_once __DIR__ . '/../config/Response.php';
+require_once __DIR__ . '/../config/Auth.php';
 
 class VentaController {
     private Venta $ventaModel;
@@ -10,23 +11,43 @@ class VentaController {
     }
 
     public function index(): void {
+        $usuario = Auth::requireAuth();
+
         $estado = $_GET['estado'] ?? null;
         $fecha = $_GET['fecha'] ?? null;
-        $idVendedor = isset($_GET['vendedor']) ? (int)$_GET['vendedor'] : null;
+
+        // Regla RBAC: El Vendedor solo consulta las ventas que le corresponden
+        if ($usuario['rol_nombre'] === 'VENDEDOR') {
+            $idVendedor = (int)$usuario['id_usuario'];
+        } else {
+            // Administrador y Cajero pueden filtrar libremente
+            $idVendedor = isset($_GET['vendedor']) ? (int)$_GET['vendedor'] : null;
+        }
 
         $ventas = $this->ventaModel->listar($estado, $fecha, $idVendedor);
         Response::json(true, 'Ventas listadas correctamente', $ventas);
     }
 
     public function show(int $id): void {
+        $usuario = Auth::requireAuth();
+
         $venta = $this->ventaModel->obtenerPorId($id);
         if (!$venta) {
             Response::error('Venta no encontrada', null, 404);
         }
+
+        // Si es vendedor, verificar que la venta haya sido creada por él
+        if ($usuario['rol_nombre'] === 'VENDEDOR' && (int)$venta['id_vendedor'] !== (int)$usuario['id_usuario']) {
+            Response::error('Acceso denegado. No tiene autorización para consultar ventas de otros usuarios.', null, 403);
+        }
+
         Response::json(true, 'Venta obtenida correctamente', $venta);
     }
 
     public function crear(): void {
+        // Solo Administrador y Vendedor pueden crear órdenes de venta
+        $usuario = Auth::requireRole(['ADMINISTRADOR', 'VENDEDOR']);
+
         $data = Response::getJsonInput();
 
         if (empty($data['id_cliente']) || empty($data['items']) || !is_array($data['items'])) {
@@ -34,7 +55,8 @@ class VentaController {
         }
 
         $idCliente = (int)$data['id_cliente'];
-        $idVendedor = (int)($data['id_vendedor'] ?? 1);
+        // Identidad inyectada desde la sesión autenticada (no confiada al cliente)
+        $idVendedor = (int)$usuario['id_usuario'];
         $items = $data['items'];
 
         try {
@@ -46,13 +68,17 @@ class VentaController {
     }
 
     public function pagar(int $idVenta): void {
+        // Solo Administrador y Cajero pueden cobrar y registrar pagos
+        $usuario = Auth::requireRole(['ADMINISTRADOR', 'CAJERO']);
+
         $data = Response::getJsonInput();
 
         if (empty($data['metodo'])) {
             Response::error('El método de pago (EFECTIVO o TRANSFERENCIA) es obligatorio', null, 422);
         }
 
-        $idCajero = (int)($data['id_cajero'] ?? 2);
+        // Identidad del cajero tomada de la sesión autenticada
+        $idCajero = (int)$usuario['id_usuario'];
         $metodo = strtoupper((string)$data['metodo']);
         $referencia = $data['referencia'] ?? null;
 
@@ -65,13 +91,17 @@ class VentaController {
     }
 
     public function anular(int $idVenta): void {
+        // Acción estrictamente restringida al rol ADMINISTRADOR
+        $usuario = Auth::requireRole('ADMINISTRADOR');
+
         $data = Response::getJsonInput();
 
         if (empty($data['motivo_anulacion'])) {
             Response::error('El motivo de anulación es obligatorio', null, 422);
         }
 
-        $idUsuarioAnulacion = (int)($data['id_usuario'] ?? 1);
+        // Identidad del usuario de anulación tomada de la sesión autenticada
+        $idUsuarioAnulacion = (int)$usuario['id_usuario'];
         $motivo = (string)$data['motivo_anulacion'];
 
         try {
@@ -82,4 +112,3 @@ class VentaController {
         }
     }
 }
-
