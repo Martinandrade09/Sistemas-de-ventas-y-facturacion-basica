@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../models/Producto.php';
 require_once __DIR__ . '/../models/MovimientoInventario.php';
 require_once __DIR__ . '/../config/Response.php';
+require_once __DIR__ . '/../config/Auth.php';
 
 class ProductoController {
     private Producto $productoModel;
@@ -13,6 +14,8 @@ class ProductoController {
     }
 
     public function index(): void {
+        Auth::requireAuth();
+
         $buscar = $_GET['buscar'] ?? null;
         $idCategoria = isset($_GET['categoria']) ? (int)$_GET['categoria'] : null;
         $estado = $_GET['estado'] ?? null;
@@ -23,6 +26,8 @@ class ProductoController {
     }
 
     public function show(int $id): void {
+        Auth::requireAuth();
+
         $producto = $this->productoModel->obtenerPorId($id);
         if (!$producto) {
             Response::error('Producto no encontrado', null, 404);
@@ -31,6 +36,8 @@ class ProductoController {
     }
 
     public function store(): void {
+        $usuario = Auth::requireRole('ADMINISTRADOR');
+
         $data = Response::getJsonInput();
 
         // Validaciones
@@ -50,10 +57,10 @@ class ProductoController {
         try {
             $nuevoId = $this->productoModel->crear($data);
 
-            // Si se registró con stock inicial mayor a 0, registrar movimiento de entrada
+            // Si se registró con stock inicial mayor a 0, registrar movimiento de entrada trazable
             $stockInicial = (int)($data['stock_actual'] ?? 0);
             if ($stockInicial > 0) {
-                $idUsuario = (int)($data['id_usuario'] ?? 1);
+                $idUsuario = (int)$usuario['id_usuario'];
                 $this->kardexModel->registrarAjuste($nuevoId, $idUsuario, $stockInicial, 'ENTRADA', 'Carga inicial de inventario');
             }
 
@@ -65,6 +72,8 @@ class ProductoController {
     }
 
     public function update(int $id): void {
+        Auth::requireRole('ADMINISTRADOR');
+
         $producto = $this->productoModel->obtenerPorId($id);
         if (!$producto) {
             Response::error('Producto no encontrado', null, 404);
@@ -94,6 +103,8 @@ class ProductoController {
     }
 
     public function destroy(int $id): void {
+        Auth::requireRole('ADMINISTRADOR');
+
         $producto = $this->productoModel->obtenerPorId($id);
         if (!$producto) {
             Response::error('Producto no encontrado', null, 404);
@@ -108,13 +119,15 @@ class ProductoController {
     }
 
     public function ajustarStock(): void {
+        $usuario = Auth::requireRole('ADMINISTRADOR');
+
         $data = Response::getJsonInput();
 
         if (empty($data['id_producto']) || empty($data['cantidad']) || empty($data['tipo']) || empty($data['motivo'])) {
             Response::error('id_producto, cantidad, tipo (ENTRADA/AJUSTE) y motivo son obligatorios', null, 422);
         }
 
-        $idUsuario = (int)($data['id_usuario'] ?? 1);
+        $idUsuario = (int)$usuario['id_usuario'];
 
         try {
             $res = $this->kardexModel->registrarAjuste(
@@ -131,13 +144,16 @@ class ProductoController {
     }
 
     public function kardex(int $idProducto): void {
+        Auth::requireRole('ADMINISTRADOR');
+
         $movimientos = $this->kardexModel->listarPorProducto($idProducto);
         Response::json(true, 'Movimientos de inventario obtenidos', $movimientos);
     }
 
     public function categorias(): void {
+        Auth::requireAuth();
+
         $categorias = $this->productoModel->listarCategorias();
         Response::json(true, 'Categorías obtenidas correctamente', $categorias);
     }
 }
-

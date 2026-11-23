@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../models/Cliente.php';
 require_once __DIR__ . '/../config/Response.php';
+require_once __DIR__ . '/../config/Auth.php';
 
 class ClienteController {
     private Cliente $clienteModel;
@@ -10,6 +11,8 @@ class ClienteController {
     }
 
     public function index(): void {
+        Auth::requireAuth();
+
         $buscar = $_GET['buscar'] ?? null;
         $estado = $_GET['estado'] ?? null;
         $clientes = $this->clienteModel->listar($buscar, $estado);
@@ -17,6 +20,8 @@ class ClienteController {
     }
 
     public function show(int $id): void {
+        Auth::requireAuth();
+
         $cliente = $this->clienteModel->obtenerPorId($id);
         if (!$cliente) {
             Response::error('Cliente no encontrado', null, 404);
@@ -25,6 +30,8 @@ class ClienteController {
     }
 
     public function store(): void {
+        Auth::requireRole(['ADMINISTRADOR', 'VENDEDOR', 'CAJERO']);
+
         $data = Response::getJsonInput();
 
         // Validaciones obligatorias de negocio
@@ -33,7 +40,7 @@ class ClienteController {
         }
 
         // Verificar duplicidad de identificación
-        $existente = $this->clienteModel->obtenerPorIdentificacion($data['identificacion']);
+        $existente = $this->clienteModel->obtenerPorIdentificacion(trim((string)$data['identificacion']));
         if ($existente) {
             Response::error('Ya existe un cliente registrado con la identificación ingresada', null, 409);
         }
@@ -48,6 +55,8 @@ class ClienteController {
     }
 
     public function update(int $id): void {
+        Auth::requireRole(['ADMINISTRADOR', 'VENDEDOR', 'CAJERO']);
+
         $cliente = $this->clienteModel->obtenerPorId($id);
         if (!$cliente) {
             Response::error('Cliente no encontrado', null, 404);
@@ -59,7 +68,7 @@ class ClienteController {
         }
 
         // Verificar si la identificación pertenece a otro cliente
-        $existente = $this->clienteModel->obtenerPorIdentificacion($data['identificacion']);
+        $existente = $this->clienteModel->obtenerPorIdentificacion(trim((string)$data['identificacion']));
         if ($existente && (int)$existente['id_cliente'] !== $id) {
             Response::error('La identificación ya se encuentra asignada a otro cliente', null, 409);
         }
@@ -74,6 +83,9 @@ class ClienteController {
     }
 
     public function destroy(int $id): void {
+        // Desactivación de clientes reservada al ADMINISTRADOR
+        Auth::requireRole('ADMINISTRADOR');
+
         $cliente = $this->clienteModel->obtenerPorId($id);
         if (!$cliente) {
             Response::error('Cliente no encontrado', null, 404);
@@ -87,4 +99,3 @@ class ClienteController {
         }
     }
 }
-
